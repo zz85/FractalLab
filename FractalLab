@@ -1,0 +1,425 @@
+{
+	"buffers":
+	[
+		{
+			"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/javascripts/application.js",
+			"settings":
+			{
+				"buffer_size": 5521,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/javascripts/fractal_lab.js",
+			"settings":
+			{
+				"buffer_size": 24351,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/javascripts/color_picker.js",
+			"settings":
+			{
+				"buffer_size": 14831,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/javascripts/color.js",
+			"settings":
+			{
+				"buffer_size": 7100,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/javascripts/gl_quad.js",
+			"settings":
+			{
+				"buffer_size": 11973,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/stylesheets/super_slider.css",
+			"settings":
+			{
+				"buffer_size": 1983,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/shaders/fractal_shader.fs",
+			"settings":
+			{
+				"buffer_size": 23132,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/shaders/fractal_shader.vs",
+			"settings":
+			{
+				"buffer_size": 1935,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/shaders/color_picker.fs",
+			"settings":
+			{
+				"buffer_size": 3140,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"file_history":
+	[
+		"/Users/tom/Library/Application Support/Sublime Text 2/Packages/Default/Global.sublime-settings",
+		"/Users/tom/Dropbox/Code/webGL/FractalLab/javascripts/camera.js"
+	],
+	"find_in_files":
+	{
+		"include_history":
+		[
+		],
+		"location_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer": false,
+		"whole_word": false,
+		"wrap": true
+	},
+	"folders":
+	{
+		"mount_points":
+		[
+			"/Users/tom/Dropbox/Code/webGL/FractalLab"
+		]
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/javascripts/application.js",
+					"settings":
+					{
+						"buffer_size": 5521,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0,
+						"translation.y": 2144,
+						"zoom_level": 1
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/javascripts/fractal_lab.js",
+					"settings":
+					{
+						"buffer_size": 24351,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8321,
+								8321
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0,
+						"translation.y": 4523,
+						"zoom_level": 1
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/javascripts/color_picker.js",
+					"settings":
+					{
+						"buffer_size": 14831,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3786,
+								3786
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false,
+							"wrap_width": 0
+						},
+						"translation.x": 0,
+						"translation.y": 1819,
+						"zoom_level": 1
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/javascripts/color.js",
+					"settings":
+					{
+						"buffer_size": 7100,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1696,
+								1696
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0,
+						"translation.y": 0,
+						"zoom_level": 1
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/javascripts/gl_quad.js",
+					"settings":
+					{
+						"buffer_size": 11973,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7347,
+								7347
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0,
+						"translation.y": 3088,
+						"zoom_level": 1
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/stylesheets/super_slider.css",
+					"settings":
+					{
+						"buffer_size": 1983,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1093,
+								1093
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CSS/CSS.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0,
+						"translation.y": 226,
+						"zoom_level": 1
+					},
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 6,
+					"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/shaders/fractal_shader.fs",
+					"settings":
+					{
+						"buffer_size": 23132,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1825,
+								1825
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"word_wrap": false,
+							"wrap_width": 0
+						},
+						"translation.x": 0,
+						"translation.y": 663,
+						"zoom_level": 1
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/shaders/fractal_shader.vs",
+					"settings":
+					{
+						"buffer_size": 1935,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								942,
+								942
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0,
+						"translation.y": 0,
+						"zoom_level": 1
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "/Users/tom/Dropbox/Code/webGL/FractalLab/shaders/color_picker.fs",
+					"settings":
+					{
+						"buffer_size": 3140,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								381,
+								381
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0,
+						"translation.y": 0,
+						"zoom_level": 1
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0,
+			0.5,
+			1
+		],
+		"rows":
+		[
+			0,
+			1
+		]
+	},
+	"menu_visible": true,
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0,
+		"selected_items":
+		[
+		],
+		"width": 0
+	},
+	"show_minimap": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 218,
+	"status_bar_visible": true
+}
