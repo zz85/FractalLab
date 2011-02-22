@@ -6,17 +6,17 @@ uniform float cameraPitch;
 uniform float cameraRoll;
 uniform float cameraYaw;
 uniform vec3  light;
+uniform float rotation;
 
 varying float aspectRatio;
-varying vec3  w;
-varying vec3  u;
-varying vec3  v;
+varying mat2  rotationMatrix;
 
 void main() 
 {
-    w = vec3(0, 0, 1);
-    v = vec3(0, 1, 0);
-    u = vec3(1, 0, 0);
+    float rc = cos(radians(rotation));
+    float rs = sin(radians(rotation));
+    rotationMatrix = mat2(rc, rs, -rs, rc);
+    
     gl_Position = vec4(vertexPosition, 1.0);
     aspectRatio = size.x / size.y;
 }

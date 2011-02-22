@@ -53,13 +53,11 @@ precision highp float;
 
 #define MIN_EPSILON 6e-7
 #define MIN_NORM 1.5e-7
-#define dE MengerSponge             // {"label":"Fractal type", "control":"select", "options":["MengerSponge", "SphereSponge", "Mandelbulb", "Mandelbox", "OctahedralIFS", "DodecahedronIFS", "Mandelbrot"]}
+#define dE MengerSponge             // {"label":"Fractal type", "control":"select", "options":["MengerSponge", "SphereSponge", "Mandelbulb", "Mandelbox", "OctahedralIFS", "DodecahedronIFS"]}
 
-#define maxIterations 8             // {"label":"Iterations", "min":1, "max":30, "step":1, "group_label":"3D parameters"}
+#define maxIterations 8             // {"label":"Iterations", "min":1, "max":30, "step":1, "group_label":"Fractal parameters"}
 #define stepLimit 60                // {"label":"Max steps", "min":10, "max":300, "step":1}
 #define aoIterations 4              // {"label":"AO iterations", "min":0, "max":10, "step":1}
-
-#define max2DIterations 50           // {"label":"Iterations", "min":1, "max":400, "step":1, "group_label":"2D parameters"}
 
 #define minRange 6e-5
 #define bailout 4.0
@@ -644,14 +642,16 @@ vec4 render(vec2 pixel)
 void main()
 {
     vec4 color = vec4(0.0);
+    float n = 0.0;
     
 #ifdef antialiasing
     for (float x = 0.0; x < 1.0; x += float(antialiasing)) {
         for (float y = 0.0; y < 1.0; y += float(antialiasing)) {
             color += render(gl_FragCoord.xy + vec2(x, y));
+            n += 1.0;
         }
     }
-    color /= 1.0 / float(antialiasing * antialiasing);
+    color /= n;
 #else
     color = render(gl_FragCoord.xy);
 #endif

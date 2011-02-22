@@ -38,13 +38,15 @@ function FractalLab(ui, opts) {
 	this.gl_quad = this.quad.data("GLQuad");
 	this.ui = $(ui);
 	
+	
+	// OpenGL quad event listeners
 	this.quad
-		.bind("loaded", function (event) { })
+		.bind("loaded", function (event) {
+			console.log("loaded shaders");
+		})
 		.bind("ready", function (event) {
-			if (!initialised) {
-				initialised = true;
-				self.init();
-			}
+			console.log("ready");
+			self.init();
 			
 			$("#log").text("Shader compiled ok.");
 		})
@@ -54,7 +56,6 @@ function FractalLab(ui, opts) {
 			$("#log_tab").trigger("click");
 			$("#compile").addClass("enabled");
 		});
-	
 	
 	
 	// Code editors
@@ -67,10 +68,12 @@ function FractalLab(ui, opts) {
 			$(event.target).data("scrollTop", event.target.scrollTop);
 		});
 	
+	
 	// Tab menu
 	$("#menu .image_tab, #menu .code_tab").click(function (event) {
 		return self.switchTabs(event);
 	});
+	
 	
 	// Recompile button
 	$("#compile").click(function (event) {
@@ -86,7 +89,7 @@ function FractalLab(ui, opts) {
 
 
 
-FractalLab.prototype = {	
+FractalLab.prototype = {
 	init: function () {
 		var self = this;
 		
@@ -100,20 +103,50 @@ FractalLab.prototype = {
 		this.impulse = {};
 		this.cameraUniform = 'cameraPosition';
 		this.objRotationUniform = 'objectRotation';
+		this.moveMultiplier = 1;
 		
+		this.init_ui();
+		
+		if (!this.initialized) {
+			this.init_events();
+		}
+		
+		$("#vertex_code").val(this.gl_quad.options.vertex.replace(/\t/g, "    "));
+		$("#fragment_code").val(this.gl_quad.options.fragment.replace(/\t/g, "    "));
+		
+		
+		
+		// Little hack
+		window.setTimeout(function () {
+			$("#compile").removeClass("enabled");
+		}, 100);
+		
+		this.resize();
+		this.main();
+		
+		this.initialized = true;
+	},
+	
+	
+	init_ui: function () {
 		// Setup UI
+		$("#group_tabs, .group").remove();
+		this.group_tabs = null;
+		
 		this.addControls();
 		this.setControlVisibility();
 	
 		// Camera control
 		if (this.gl_quad.parameters[this.cameraUniform]) {
-			if (this.options.mode === '3d') {
+			if (typeof(this.gl_quad.parameters.cameraPitch) !== 'undefined') {
+				this.options.mode = '3d';
 				this.camera = new Camera(this.gl_quad.parameters[this.cameraUniform][0],
 										 this.gl_quad.parameters[this.cameraUniform][1],
 										 this.gl_quad.parameters[this.cameraUniform][2],
 										 this.gl_quad.parameters.cameraPitch,
 										 this.gl_quad.parameters.cameraYaw);	
 			} else {
+				this.options.mode = '2d';
 				this.camera = new Camera(this.gl_quad.parameters[this.cameraUniform][0],
 										 this.gl_quad.parameters[this.cameraUniform][1],
 										 this.gl_quad.parameters[this.cameraUniform][2],
@@ -123,9 +156,14 @@ FractalLab.prototype = {
 			
 			this.camera.step(0.001);
 		}
+	},
+	
+	
+	init_events: function () {
+		var self = this;
 		
 		// Events
-		self.keyEvents();
+		this.keyEvents();
 		
 		this.mouseDownListener = function (event) {
 			if (!self.editing) {
@@ -179,29 +217,27 @@ FractalLab.prototype = {
 			return false;
 		});
 		
-		$("#vertex_code").val(this.gl_quad.options.vertex.replace(/\t/g, "    "));
-		$("#fragment_code").val(this.gl_quad.options.fragment.replace(/\t/g, "    "));
-		
 		// Other UI controls
 		$("#scale_size").change(function (event) {
 			self.resize(event);
 		});
 		
 		// View mode
-		this.mode = $("#mode")[0];
+		$("#mode").change(function () {
+			self.mode = this.value;
+			if (self.mode !== 'cont') {
+				self.framerate.text('');
+			}
+		});
+		
+		this.mode = $("#mode").val();
+		
 		if (this.options.framerate) {
 			this.framerate = $(this.options.framerate);
 			this.fps = new FPS(60);
 		}
-		
-		// Little hack
-		window.setTimeout(function () {
-			$("#compile").removeClass("enabled");
-		}, 100);
-		
-		this.resize();
-		this.main();
 	},
+	
 	
 	// Resize canvas to fit the container element
 	resize: function (event) {
@@ -228,11 +264,13 @@ FractalLab.prototype = {
 		this.gl_quad.options.width = w;
 		this.gl_quad.options.height = h;
 		this.gl_quad.resize(w, h);
-		$("#resolution").text(w + "x" + h + " px");
 		this.gl_quad.draw();
+		
+		$("#resolution").text(w + "x" + h + " px");
 	},
 	
 	
+	// Load from the saved shader object
 	load: function (shader) {
 		$("#vertex_code").val(shader.vertex);
 		$("#fragment_code").val(shader.fragment);
@@ -251,6 +289,14 @@ FractalLab.prototype = {
 	},
 	
 	
+	// Load shaders from URLs
+	load_by_path: function (vertex_path, fragment_path) {
+		this.gl_quad.reset(true);
+		this.gl_quad.loadShaders(vertex_path, fragment_path);
+	},
+	
+	
+	// Return shader object for saving
 	params: function (title) {
 		return {
 			title: title,
@@ -261,6 +307,7 @@ FractalLab.prototype = {
 	},
 	
 	
+	// Recompile the current shader and reset the controls
 	recompile: function (event) {
 		$("#log").text("");
 		
@@ -272,18 +319,7 @@ FractalLab.prototype = {
 			}
 		}
 		
-		if (this.gl_quad.createProgram($("#vertex_code").val(), $("#fragment_code").val())) {
-			$("#group_tabs, .group").remove();
-			this.group_tabs = null;
-			this.addControls();
-			this.setControlVisibility();
-			this.resize();
-			
-			return true;
-		} else {
-			return false;
-		}
-		
+		return this.gl_quad.createProgram($("#vertex_code").val(), $("#fragment_code").val());
 	},
 	
 	
@@ -306,6 +342,7 @@ FractalLab.prototype = {
 			$("#group_" + $(this).text()).show();
 		});
 	},
+	
 	
 	switchTabs: function (event) {
 		var tab = $(event.target),
@@ -338,6 +375,7 @@ FractalLab.prototype = {
 		return false;
 	},
 	
+	
 	editTextarea: function (event) {
 		// console.log(event.which);
 		var input = $(event.target),
@@ -361,6 +399,8 @@ FractalLab.prototype = {
 	
 	addControls: function () {
 		var i, l, prop;
+		
+		this.ui.html('');
 		
 		if (!this.group_tabs) {
 			this.group_tabs = $('<div id="group_tabs">');
@@ -554,8 +594,6 @@ FractalLab.prototype = {
 				.text(options.label)
 				.prepend(control));
 			
-			// console.log("bool", options.name, this.gl_quad.parameters[options.name], typeof(this.gl_quad.parameters[options.name]))
-			
 			if (this.gl_quad.parameters[options.name] !== false && typeof(this.gl_quad.parameters[options.name]) !== 'undefined') {
 				control.attr("checked", true);
 			}
@@ -568,6 +606,7 @@ FractalLab.prototype = {
 			});
 		}
 	},
+	
 	
 	controlListener: function (event, name, options) {
 		var i, l, mat, speed;
@@ -735,31 +774,36 @@ FractalLab.prototype = {
 	keyListener: function () {
 		var step, fps, 
 			now = Date.now(),
-			time;
+			time,
+			step_factor = this.moveMultiplier;
 		this.tick += 1;
+		
+		if (this.options.mode === '2d') {
+			step_factor *= 5 * this.camera.z;
+		}
 		
 		// Move forward/back
 		if (this.keystates[38] || this.keystates[87] || this.impulse.forward) {
 			// w or up arrow
 			this.changed = true;
-			this.camera.forward(this.camera.step() * this.moveMultiplier);
+			this.camera.forward(this.camera.step() * step_factor);
 			
 		} else if (this.keystates[40] || this.keystates[83] || this.impulse.backward) {
 			// s or down arrow
 			this.changed = true;
-			this.camera.back(this.camera.step() * this.moveMultiplier);		
+			this.camera.back(this.camera.step() * step_factor);		
 		}
 		
 		// Move up or down
 		if (this.keystates[81]) {
 			// q
 			this.changed = true;
-			this.camera.down(this.camera.step() * this.moveMultiplier);
+			this.camera.down(this.camera.step() * step_factor);
 			
 		} else if (this.keystates[69]) {
 			// e
 			this.changed = true;
-			this.camera.up(this.camera.step() * this.moveMultiplier);
+			this.camera.up(this.camera.step() * step_factor);
 		}
 		
 		// Change step size
@@ -767,14 +811,14 @@ FractalLab.prototype = {
 			// z
 			this.keystates[90] = false;
 			this.changed = true;
-			step = $("#stepSpeed").data("superslider").value() * this.moveMultiplier / 2;
+			step = $("#stepSpeed").data("superslider").value() * step_factor / 2;
 			$("#stepSpeed").data("superslider").value(step);
 			
 		} else if (this.keystates[88]) {
 			// x
 			this.keystates[88] = false;
 			this.changed = true;
-			step = $("#stepSpeed").data("superslider").value() * this.moveMultiplier * 2;
+			step = $("#stepSpeed").data("superslider").value() * step_factor * 2;
 			$("#stepSpeed").data("superslider").value(step);
 		}
 
@@ -782,16 +826,16 @@ FractalLab.prototype = {
 		if (this.keystates[37] || this.keystates[65]) {
 			// a or left arrow
 			this.changed = true;
-			this.camera.strafeLeft(this.camera.step() * this.moveMultiplier);
+			this.camera.strafeLeft(this.camera.step() * step_factor);
 			
 		} else if (this.keystates[39] || this.keystates[68]) {
 			// d or right arrow
 			this.changed = true;
-			this.camera.strafeRight(this.camera.step() * this.moveMultiplier);	
+			this.camera.strafeRight(this.camera.step() * step_factor);	
 		}
 
 		// Render changes
-		if (this.changed || this.mode.value === 'cont') {
+		if (this.changed || this.mode === 'cont') {
 			if (this.camera) {
 				this.updateCamera();
 			}
@@ -801,14 +845,11 @@ FractalLab.prototype = {
 			this.updated = false;
 			this.impulse = {};
 			
-			if (this.framerate && this.tick > 30) {
+			if (this.framerate && this.tick > 30 && this.mode === 'cont') {
 				// Update framerate every 30 ticks
 				fps = this.fps.display();
 				this.framerate.text("FPS: " + fps + " (" + Math.round((1 / fps) * 10000) / 10 + "ms)");
 				this.tick = 0;
-			// } else if (this.mode.value !== 'cont') {
-			// 	// Only show last frame render time
-			// 	this.framerate.text("Time: " + time + "ms");
 			}
 			
 		}
@@ -820,6 +861,7 @@ FractalLab.prototype = {
 	autoDraw: function (event) {
 		this.gl_quad.draw();
 	},
+	
 	
 	mouseDown: function (event) {
 		// console.log("mouse down");
@@ -836,6 +878,7 @@ FractalLab.prototype = {
 		var dx = event.clientX - this.ox,
 			dy = event.clientY - this.oy,
 			step = 0.5,
+			step_factor,
 			rx, ry;
 
 		this.u = dx * step;
@@ -873,10 +916,11 @@ FractalLab.prototype = {
 
 				this.gl_quad.parameters.cameraPitch -= this.v;
 			}
-		} else {
+		} else if (this.options.mode === '2d'){
 			// 2D camera
-			this.gl_quad.parameters.cameraPosition[0] += this.u;
-			this.gl_quad.parameters.cameraPosition[1] += this.v;
+			step_factor =  4 * this.camera.z * this.moveMultiplier / (this.gl_quad.canvas.width());
+			this.camera.x -= this.u * step_factor;
+			this.camera.y += this.v * step_factor;
 		}
 
 		this.ox = event.clientX;
@@ -886,7 +930,6 @@ FractalLab.prototype = {
 	
 	
 	mouseUp: function (event) {
-		// console.log("mouse up");
 		this.gl_quad.canvas[0].removeEventListener("mousemove", this.mouseMoveListener, false);
 		document.removeEventListener("mouseup", this.mouseUpListener, false);
 		this.updateUI();
@@ -894,25 +937,32 @@ FractalLab.prototype = {
 	
 	
 	updateCamera: function () {
-		this.camera.pitch(this.gl_quad.parameters.cameraPitch);
-		this.camera.yaw(this.gl_quad.parameters.cameraYaw);
+		this.camera.pitch(this.gl_quad.parameters.cameraPitch || 0);
+		this.camera.yaw(this.gl_quad.parameters.cameraYaw || 0);
 		this.gl_quad.parameters[this.cameraUniform][0] = this.camera.x;
 		this.gl_quad.parameters[this.cameraUniform][1] = this.camera.y;
 		this.gl_quad.parameters[this.cameraUniform][2] = this.camera.z;
 	},
+	
 	
 	updateUI: function () {
 		if (this.camera) {
 			$("#" + this.cameraUniform + "_0").data("superslider").value(this.camera.x);
 			$("#" + this.cameraUniform + "_1").data("superslider").value(this.camera.y);
 			$("#" + this.cameraUniform + "_2").data("superslider").value(this.camera.z);
-
-			$("#cameraPitch").data("superslider").value(this.gl_quad.parameters.cameraPitch);
-			$("#cameraYaw").data("superslider").value(this.gl_quad.parameters.cameraYaw);
+			
+			if ($("#cameraPitch").data("superslider")) {
+				$("#cameraPitch").data("superslider").value(this.gl_quad.parameters.cameraPitch);
+			}
+			
+			if ($("#cameraPitch").data("superslider")) {
+				$("#cameraYaw").data("superslider").value(this.gl_quad.parameters.cameraYaw);
+			}
 		}
 		
 		this.updated = true;
 	},
+	
 	
 	rotationMatrix: function (a) {
 		var r = Math.PI / 180,
@@ -924,9 +974,11 @@ FractalLab.prototype = {
                -c.x * c.z * s.y + s.x * s.z, c.z * s.x + c.x * s.y * s.z,  c.x * c.y];
 	},
 	
+	
 	imageData: function () {
 		return this.gl_quad.getPixels();
 	},
+	
 	
 	main: function () {
 		var self = this;

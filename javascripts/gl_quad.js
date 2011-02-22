@@ -24,14 +24,14 @@ function GLQuad(opts) {
 	return this.canvas;
 }
 
-GLQuad.supported = function () {
+GLQuad.supported = function (canvas) {
 	var gl_strings = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"],
 		gl, i;
 	
 	// Initialise WebGL
 	for (i = 0; i < gl_strings.length; i += 1) {
 		try {
-			gl = $("<canvas>").get(0).getContext(gl_strings[i]);
+			gl = (canvas || $("<canvas>")).get(0).getContext(gl_strings[i]);
 		} catch (error) {
 			//
 		}
@@ -95,20 +95,7 @@ GLQuad.prototype = {
 	
 	
 	initGL: function () {
-		var gl_strings = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"],
-			i;
-		
-		// Initialise WebGL
-		for (i = 0; i < gl_strings.length; i += 1) {
-			try {
-				this.gl = this.canvas.get(0).getContext(gl_strings[i]);
-			} catch (error) {
-				//
-			}
-			if (this.gl) {
-				break;
-			}
-		}
+		this.gl = GLQuad.supported(this.canvas);
 		
 		if (!this.gl) {
 			alert("WebGL not supported");
@@ -149,11 +136,15 @@ GLQuad.prototype = {
 	},
 	
 	
-	reset: function () {
+	reset: function (full) {
 		this.error = '';
 		this.uniforms = {};							// Store objects for the uniform params
 		this.controls = [];							// Reference the order of the uniforms for UI
 		this.defines = {vertex: {}, fragment: {}};	// Shader specific define statements
+		
+		if (full) {
+			this.parameters = {};
+		}
 	},
 	
 	
@@ -223,6 +214,7 @@ GLQuad.prototype = {
 			return false;
 		}
 		
+		
 		this.gl.attachShader(program, vs);
 		this.gl.attachShader(program, fs);
 		this.gl.deleteShader(vs);
@@ -241,6 +233,8 @@ GLQuad.prototype = {
 			this.glProgram = program;
 		}
 		
+		this.options.vertex = vertex_src;
+		this.options.fragment = fragment_src;
 		this.resize(this.options.width, this.options.height);
 		
 		this.canvas.trigger("ready");
