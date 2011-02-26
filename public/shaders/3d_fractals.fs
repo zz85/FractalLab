@@ -34,6 +34,7 @@ precision highp float;
  *
 */
 
+#define HALFPI 1.570796
 #define MIN_EPSILON 6e-7
 #define MIN_NORM 1.5e-7
 #define dE MengerSponge             // {"label":"Fractal type", "control":"select", "options":["MengerSponge", "SphereSponge", "Mandelbulb", "Mandelbox", "MandelboxAlt", "OctahedralIFS", "DodecahedronIFS"]}
@@ -235,6 +236,7 @@ vec3 OctahedralIFS(vec3 w)
 
 #ifdef dEDodecahedronIFS
 
+// phi = 1.61803399
 uniform float phi;  // {"label":"Phi", "min":0.1, "max":3, "step":0.01, "default":1.618, "group":"Fractal"}
 
 // Dodecahedron serpinski
@@ -245,7 +247,7 @@ uniform float phi;  // {"label":"Phi", "min":0.1, "max":3, "step":0.01, "default
 
 // Pre-calculations
 vec3 scale_offset = offset * (scale - 1.0);
-// float PHI = 1.61803399;
+
 float _IKVNORM_ = 1.0 / sqrt(pow(phi * (1.0 + phi), 2.0) + pow(phi * phi - 1.0, 2.0) + pow(1.0 + phi, 2.0));
 float _C1_ = phi * (1.0 + phi) * _IKVNORM_;
 float _C2_ = (phi * phi - 1.0) * _IKVNORM_;
@@ -515,7 +517,7 @@ vec3 generateNormal(vec3 z, float e)
 vec3 blinnPhong(vec3 color, vec3 p, vec3 n)
 {
     // Ambient colour based on background gradient
-    vec3 ambColor = clamp(mix(background2Color, background1Color, (cos(n.y) + 1.0) * 0.5), 0.0, 1.0);
+    vec3 ambColor = clamp(mix(background2Color, background1Color, (sin(n.y * HALFPI) + 1.0) * 0.5), 0.0, 1.0);
     ambColor = mix(vec3(ambientColor.x), ambColor, ambientColor.y);
     
     vec3  halfLV = normalize(light - p);
@@ -553,7 +555,7 @@ vec4 render(vec2 pixel)
     vec3  ray_direction = rayDirection(pixel);
     float ray_length = minRange;
     vec3  ray = cameraPosition + ray_length * ray_direction;
-    vec4  bg_color = vec4(clamp(mix(background2Color, background1Color, (ray_direction.y + 1.0) * 0.5), 0.0, 1.0), 1.0);
+    vec4  bg_color = vec4(clamp(mix(background2Color, background1Color, (sin(ray_direction.y * HALFPI) + 1.0) * 0.5), 0.0, 1.0), 1.0);
     vec4  color = bg_color;
     
     float eps = MIN_EPSILON;
