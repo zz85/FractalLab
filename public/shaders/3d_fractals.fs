@@ -40,7 +40,6 @@ precision highp float;
 
 #define maxIterations 8             // {"label":"Iterations", "min":1, "max":30, "step":1, "group_label":"Fractal parameters"}
 #define stepLimit 60                // {"label":"Max steps", "min":10, "max":300, "step":1}
-#define shadowSteps 10              // {"label":"Shadow steps", "min":0, "max":50, "step":1}
 
 #define aoIterations 4              // {"label":"AO iterations", "min":0, "max":10, "step":1}
 
@@ -101,8 +100,6 @@ varying vec3  u;
 varying vec3  v;
 varying mat3  cameraRotation;
 varying float epsfactor;
-varying vec3  c3;
-varying vec3  phi3;
 
 
 
@@ -237,14 +234,27 @@ vec3 OctahedralIFS(vec3 w)
 
 
 #ifdef dEDodecahedronIFS
-// Pre-calculations
-vec3 scale_offset = offset * (scale - 1.0);
+
+uniform float phi;  // {"label":"Phi", "min":0.1, "max":3, "step":0.01, "default":1.618, "group":"Fractal"}
 
 // Dodecahedron serpinski
 // Thanks to Knighty:
 // http://www.fractalforums.com/index.php?topic=3158.msg16982#msg16982
 // The normal vectors for the dodecahedra-siepinski folding planes are:
 // (phi^2, 1, -phi), (-phi, phi^2, 1), (1, -phi, phi^2), (-phi*(1+phi), phi^2-1, 1+phi), (1+phi, -phi*(1+phi), phi^2-1) and x=0, y=0, z=0 planes.
+
+// Pre-calculations
+vec3 scale_offset = offset * (scale - 1.0);
+// float PHI = 1.61803399;
+float _IKVNORM_ = 1.0 / sqrt(pow(phi * (1.0 + phi), 2.0) + pow(phi * phi - 1.0, 2.0) + pow(1.0 + phi, 2.0));
+float _C1_ = phi * (1.0 + phi) * _IKVNORM_;
+float _C2_ = (phi * phi - 1.0) * _IKVNORM_;
+float _1C_ = (1.0 + phi) * _IKVNORM_;
+
+vec3 phi3 = vec3(0.5, 0.5 / phi, 0.5 * phi);
+vec3 c3   = vec3(_C1_, _C2_, _1C_);
+
+
 vec3 DodecahedronIFS(vec3 w)
 {
     w *= objectRotation;
@@ -296,11 +306,12 @@ vec3 DodecahedronIFS(vec3 w)
 uniform float sphereScale;          // {"label":"Sphere scale", "min":0.01, "max":3,    "step":0.01,    "default":1,    "group":"Fractal", "group_label":"Additional parameters"}
 uniform float boxScale;             // {"label":"Box scale",    "min":0.01, "max":3,    "step":0.001,   "default":0.5,  "group":"Fractal"}
 uniform float boxFold;              // {"label":"Box fold",     "min":0.01, "max":3,    "step":0.001,   "default":1,    "group":"Fractal"}
+uniform float fudgeFactor;          // {"label":"Box size fudge factor",     "min":0, "max":100,    "step":0.001,   "default":0,    "group":"Fractal"}
 
 // Pre-calculations
-float mR2 = boxScale * boxScale;
-float fR2 = sphereScale * mR2;
-vec2  scalevec = vec2(scale, abs(scale)) / mR2;
+float mR2 = boxScale * boxScale;    // Min radius
+float fR2 = sphereScale * mR2;      // Fixed radius
+vec2  scaleFactor = vec2(scale, abs(scale)) / mR2;
 
 // Details about the Mandelbox DE algorithm:
 // http://www.fractalforums.com/3d-fractal-generation/a-mandelbox-distance-estimate-formula/
@@ -333,7 +344,7 @@ vec3 Mandelbox(vec3 w)
         float d = dot(p.xyz, p.xyz);
         p.xyzw *= clamp(max(fR2 / d, mR2), 0.0, 1.0);  // sphere fold
         
-        p.xyzw = p * scalevec.xxxy + p0 + vec4(offset, 0.0);
+        p.xyzw = p * scaleFactor.xxxy + p0 + vec4(offset, 0.0);
         p.xyz *= fractalRotation2;
 
         if (i < colorIterations) {
@@ -343,7 +354,7 @@ vec3 Mandelbox(vec3 w)
     }
     
     // Return distance estimate, min distance, fractional iteration count
-    return vec3((length(p.xyz) - 10.0) / p.w, md, 0.33 * log(dot(c, c)) + 1.0);
+    return vec3((length(p.xyz) - fudgeFactor) / p.w, md, 0.33 * log(dot(c, c)) + 1.0);
 }
 #endif
 
@@ -501,42 +512,19 @@ vec3 generateNormal(vec3 z, float e)
 // Blinn phong shading model
 // http://en.wikipedia.org/wiki/BlinnPhong_shading_model
 // base color, incident, point of intersection, normal
-vec3 blinnPhong(vec3 color, vec3 i, vec3 p, vec3 n)
+vec3 blinnPhong(vec3 color, vec3 p, vec3 n)
 {
     // Ambient colour based on background gradient
-    vec3 ambColor = clamp(mix(background2Color, background1Color, (n.y + 1.0) * 0.5), 0.0, 1.0);
+    vec3 ambColor = clamp(mix(background2Color, background1Color, (cos(n.y) + 1.0) * 0.5), 0.0, 1.0);
     ambColor = mix(vec3(ambientColor.x), ambColor, ambientColor.y);
     
     vec3  halfLV = normalize(light - p);
     float diffuse = max(dot(n, halfLV), 0.0);
     float specular = pow(diffuse, specularExponent);
-    //vec3  reflection = i - 2.0 * dot(i * n) * n;
     
     return ambColor * color + color * diffuse + specular * specularity;
 }
 
-
-// Standard Phong shading model
-// vec3 Phong(vec3 c, vec3 i, vec3 p, vec3 n)
-// {
-//     // Ambient colour based on background gradient
-//     vec3 ambColor = clamp(mix(background2Color, background1Color, (n.y + 1.0) * 0.5), 0.0, 1.0);
-//     ambColor = mix(vec3(ambientColor.x), ambColor, ambientColor.y);
-//     
-//     vec3 color = ambColor;
-//     vec3 l = normalize(light - p);
-//     float lambert = dot(n, l);
-//     
-//     if (lambert > 0.0) {
-//         color += c * lambert;
-//         vec3 r = reflect(-l, n);
-//         float specular = pow(max(dot(r, i), 0.0), specularExponent);
-//         
-//         color += specular * specularity;
-//     }
-//     
-//     return color;
-// }
 
 
 // Ambient occlusion approximation.
@@ -556,17 +544,6 @@ float ambientOcclusion(vec3 p, vec3 n, float eps)
     }
     
     return clamp(o, 0.0, 1.0);
-}
-
-
-// p pos, l direction to light - normalized, d stepwidth, i number of steps
-float shadow(vec3 p, vec3 l, float d) {
-	float o = 0.0;
-	
-	for (float i = float(shadowSteps); i > 0.0; i--) {
-		o += dE(p + l * i * d).x;
-	}
-	return clamp(1.0 - o, 0.0, 1.0);
 }
 
 
@@ -627,11 +604,10 @@ vec4 render(vec2 pixel)
         } else {
             normal = generateNormal(ray, eps);
             aof = ambientOcclusion(ray, normal, eps);
-            shadows = shadow(ray, normalize(ray - light), 2.0 * eps);
         }
         
         color.rgb = mix(color1, mix(color2, color3, dist.y * color2Intensity), dist.z * color3Intensity);
-        color.rgb = blinnPhong(clamp(color.rgb * color1Intensity, 0.0, 1.0), ray_direction, ray, normal);
+        color.rgb = blinnPhong(clamp(color.rgb * color1Intensity, 0.0, 1.0), ray, normal);
         color.rgb *= aof;
         color.rgb = mix(color.rgb, innerGlowColor, glow);
         color.rgb = mix(bg_color.rgb, color.rgb, exp(-pow(ray_length * exp(fogFalloff), 2.0) * fog));

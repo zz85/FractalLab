@@ -68,7 +68,7 @@ FractalLab.prototype = {
 		var self = this;
 		
 		this.tick = 0;
-		this.keymove = true;
+		this.keymove = false;
 		this.drawing = false;
 		this.changed = false;
 		this.updated = false;
@@ -168,15 +168,35 @@ FractalLab.prototype = {
 			$(event.target).removeClass("moving");
 		};
 		
-		this.gl_quad.canvas.parent().bind("mousewheel DOMMouseScroll", function (event) {
-			event.preventDefault();
-			
-			if (event.wheelDelta > 0) {
-				self.impulse.forward = true;		// Zoom in
-			} else if (event.wheelDelta < 0) {
-				self.impulse.backward = true;		// Zoom out
+		this.mouseWheel = function (event) {
+			if (self.keymove) {
+				event.preventDefault();
+				
+				var delta = event.wheelDelta || event.detail;
+				
+				if (delta > 0) {
+					self.impulse.forward = true;		// Zoom in
+				} else if (delta < 0) {
+					self.impulse.backward = true;		// Zoom out
+				}	
 			}
-		});
+		};
+		
+		
+		// this.gl_quad.canvas.parent().bind("mousewheel DOMMouseScroll", function (event) {
+		// $("window").bind("mousewheel DOMMouseScroll", function (event) {
+		// 	console.log("mouse scroll")
+		// 	if (self.keymove) {
+		// 		event.preventDefault();
+		// 
+		// 		if (event.wheelDelta > 0) {
+		// 			self.impulse.forward = true;		// Zoom in
+		// 		} else if (event.wheelDelta < 0) {
+		// 			self.impulse.backward = true;		// Zoom out
+		// 		}	
+		// 	}
+		// 	
+		// });
 		
 		$(window).resize(function () {
 			window.clearTimeout(self.resizeTimeout);
@@ -192,6 +212,9 @@ FractalLab.prototype = {
 		  .parent().get(0).addEventListener("mouseover", this.mouseOverListener, false);
 		this.gl_quad.canvas
 		  .parent().get(0).addEventListener("mouseout",  this.mouseOutListener,  false);
+		
+		window.addEventListener('DOMMouseScroll', this.mouseWheel, false);
+		window.addEventListener('mousewheel', this.mouseWheel, false);
 		
 		this.gl_quad.canvas.parent().bind("selectstart", function () {
 			return false;

@@ -15,8 +15,6 @@ varying vec3  u;
 varying vec3  v;
 varying mat3  cameraRotation;
 varying float epsfactor;
-varying vec3  c3;
-varying vec3  phi3;
 
 
 // Return rotation matrix for rotating around vector v by angle
@@ -38,19 +36,6 @@ void main()
     u = vec3(1, 0, 0);
     cameraRotation = rotationMatrixVector(v, 180.0 - cameraYaw) * rotationMatrixVector(u, -cameraPitch) * rotationMatrixVector(w, cameraRoll);
     aspectRatio = size.x / size.y;
-    
-    // Dodecahedron serpinski
-    // Thanks to Knighty:
-    // http://www.fractalforums.com/index.php?topic=3158.msg16982#msg16982
-    float PHI = 1.61803399;
-    float _IKVNORM_ = 1.0 / sqrt(pow(PHI*(1.0 + PHI), 2.0) + pow(PHI*PHI - 1.0, 2.0) + pow(1.0 + PHI, 2.0));
-    float _C1_ = PHI * (1.0 + PHI) * _IKVNORM_;
-    float _C2_ = (PHI*PHI - 1.0) * _IKVNORM_;
-    float _1C_ = (1.0 + PHI) * _IKVNORM_;
-
-    phi3 = vec3(0.5, 0.5 / PHI, 0.5 * PHI);
-    c3   = vec3(_C1_, _C2_, _1C_);
-    
     
     float fovfactor = 1.0 / sqrt(1.0 + cameraFocalLength * cameraFocalLength);
     float pixelScale = 1.0 / min(size.x, size.y);

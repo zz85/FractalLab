@@ -1,0 +1,240 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Fractal Lab - Interactive WebGL Fractal Explorer</title>
+
+<meta charset="utf-8">
+
+<link href="stylesheets/super_slider.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="stylesheets/color_picker.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="stylesheets/fractal_lab.css" media="screen" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="javascripts/jquery-1.5.min.js"></script>
+<script type="text/javascript" src="javascripts/underscore-min.js"></script>
+<script type="text/javascript" src="javascripts/super_slider.js"></script>
+<script type="text/javascript" src="javascripts/color.js"></script>
+<script type="text/javascript" src="javascripts/color_picker.js"></script>
+<script type="text/javascript" src="javascripts/gl_quad.js"></script>
+<script type="text/javascript" src="javascripts/camera.js"></script>
+<script type="text/javascript" src="javascripts/fractal_lab.js"></script>
+<script type="text/javascript" src="javascripts/indexed_local_storage.js"></script>
+<script type="text/javascript" src="javascripts/fractal_library.js"></script>
+<script type="text/javascript" src="javascripts/fps.js"></script>
+<script type="text/javascript" src="javascripts/application.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+$(function () {
+	
+	if (GLQuad.supported()) {
+		$("#container").show();
+		application();
+	} else {
+		$("#not_supported").show();
+	}
+	
+	$('a[href^="http://"]').attr({target: "_blank", title: "Link opens in a new window"});
+	
+});
+</script>
+
+</head>
+<body>
+<div id="container">
+	
+	<div id="header">
+		<h1 class="logo">Fractal Lab</h1>
+		<p class="subheader">Interactive WebGL fractal explorer.</p>
+		
+		<div id="buttons">
+			<a id="help_button" class="button">Help</a>
+			<a id="library_button" class="button">Fractal library</a>
+			<a id="fullscreen" class="button">Fullscreen</a>
+			<a class="button save">Save</a>
+		</div>
+	</div>
+	
+	<div id="body">
+		<div id="menu">
+			<a class="tab image_tab active" data-for="stage">Image</a>
+			<a class="tab code_tab" data-for="render_panel" id="render_tab">Renders</a>
+			<a class="tab code_tab" data-for="vertex_code_panel">Vertex</a>
+			<a class="tab code_tab" data-for="fragment_code_panel">Fragment</a>
+			<a class="tab code_tab" data-for="log_panel" id="log_tab">Log</a>
+			<a class="tab button_tab" id="save_image">Save image</a>
+			<a class="tab button_tab" id="compile">Recompile</a>
+		</div>
+		
+		<div id="help">
+			<div class="content">
+				<h1>Help &amp; User Guide</h1>
+				<p>Fractal Lab is a WebGL based fractal explorer allowing you to explore 2D and 2D fractal. The fractals are rendered using the OpenGL Shading Language (GLSL) to enable real-time interactivity.</p>
+				<p><strong>WARNING: it is possible to create GLSL fractal shaders that will lock up your GPU requiring a hard reboot if pushed too hard. Use at your own risk!</strong></p>
+
+				<h2>Navigation controls</h2>
+				<p>Click and drag with the mouse to pan the camera.</p>
+
+				<ul style="list-style: none; margin: 0; padding: 0 0 0 10px;">
+					<li><strong>h</strong> - show this help screen</li>
+					<li><strong>w</strong> - forward</li>
+					<li><strong>s</strong> - backward</li>
+					<li><strong>a</strong> - strafe left</li>
+					<li><strong>d</strong> - strafe right</li>
+					<li><strong>q</strong> - move down</li>
+					<li><strong>e</strong> - move up</li>
+					<li><strong>z</strong> - decrease speed</li>
+					<li><strong>x</strong> - increase speed</li>
+				</ul>
+
+				<p>
+					Holding <strong>shift</strong> while moving will increase speed by 10 times.<br />
+					Holding <strong>alt</strong> will decrease speed by 10 times.<br />
+					Holding <strong>command</strong> whilst dragging will rotate the fractal rather than pan the camera.
+				</p>
+
+				<h2>Parameters</h2>
+				<p>All parameters apart from those in the <em>Constants</em> tab will be immediately effective. The cursor <strong>up/down arrows</strong> can be used to carefully tweak slider values. Hold down <strong>shift</strong> or <strong>alt</strong> to change the increment step.</p>
+				<p><em>Constants</em> require the shader to be recompiled before they will take effect. The <em>Recompile</em> button will highlight when a recompilable change has been made.</p>
+				
+				<h2>The fractal library</h2>
+				<p>Pressing the <em>Save</em> button will store the current parameters, vertex and fragment code to a Local Storage database. Use the same name as an existing entry to update it.</p>
+				<p>Note: the fractal library is specific to the browser on the machine it is used upon. Press the <strong>[+]</strong> next to the saved item to view and copy it's parameters. These parameters can be pasted into a new fractal and enables a way to share fractals.</p>
+				
+				<h2>Rendering images</h2>
+				<p>By clicking the <em>Save image</em> button the current view will be saved as a PNG in the renders tab. To save the image to your hard drive drag it from the render tab to your desktop.</p>
+				<p>For best quality renders enable the <strong>Anti-aliasing</strong> checkbox and then recompile the fractal. <strong>Note: this will really slow down your computer and could freeze your system if you try to render an image that is too large!</strong></p>
+				
+				<h2>Editing the fractal formulas</h2>
+				<p>The formulas for the different fractals are defined in the <em>Fragment</em> shader tab. They are written in GLSL and is compatible to the OpenGL 2.0 ES level.</p>
+				<p>Parameter controls for the various uniform inputs are defined in a commented JSON block. See the code for example of how to define these.</p>
+				
+				<h2>Credits and links</h2>
+				<p>A massive credit is due to the collaborative effort that goes on at <a href="http://www.fractalforums.com/">Fractal Forums</a>, which is <em>the</em> place for discussions on anything to do with fractals.</p>
+				<p>Special thanks goes to Daniel White, Paul Nylander, Tom Lowe, David Makin, Buddhi, Joy Leys, Knighty and Jan Kadlec for their work on developing the 3D fractal algorithms.</p>
+				<p>There are other similar 3D fractal desktop apps also worth checking out:<br />
+					<a href="http://www.fractalforums.com/index.php?action=downloads;cat=5">Mandelbulb 3D</a><br />
+					<a href="http://sites.google.com/site/mandelbulber/home/">Mandelbulber</a><br />
+					<a href="http://sourceforge.net/projects/boxplorer/">Boxplorer</a><br />
+					<a href="http://syntopia.github.com/Fragmentarium/">Fragmentarium</a>
+				</p>
+				<p>Other GPU related apps:<br />
+					<a href="http://www.iquilezles.org/apps/shadertoy/">Shader Toy</a><br />
+					<a href="http://www.adobe.com/devnet/pixelbender.html">Pixel Bender</a>
+				</p>
+				<p>For other generative and mathematical related graphics projects please visit <a href="http://www.subblue.com/">subblue.com</a></p>
+				
+				<h2>License</h2>
+				<p>This software is released under the <a href="http://www.gnu.org/licenses/gpl-2.0.html">GPL version 2 license</a>.</p>
+			</div>
+		</div>
+		
+		<div class="panel image active" id="stage">
+			<canvas id="canvas" width="500" height="400" class="fit"></canvas>
+			<div id="info">
+				<div id="fps">
+					<span id="average_fps"></span>
+				</div>
+
+				<div id="update_mode">
+					<label id="resolution">500x400</label>
+					
+					<label for="mode">Update:
+						<select id="mode">
+							<option value="auto">Automatic</option>
+							<option value="cont">Continuous</option>
+						</select>
+					</label>
+					
+					<label for="scale_size"><input type="checkbox" value="1" id="scale_size" checked> Preview mode</label>
+				</div>
+
+			</div>
+		</div>
+		
+		<div class="panel code" id="vertex_code_panel">
+			<textarea id="vertex_code"></textarea>
+		</div>
+		
+		<div class="panel code" id="fragment_code_panel">
+			<textarea id="fragment_code"></textarea>
+		</div>
+		
+		<div class="panel code" id="log_panel">
+			<pre id="log"></pre>
+		</div>
+		
+		<div class="panel" id="render_panel">
+			<p>Saved images are listed here. Drag the images to your desktop to save permanently.</p>
+		</div>
+	</div>
+	
+	<div id="shaderUI">
+		<div id="type_buttons">
+			<a id="2d" class="button">2D</a>
+			<a id="3d" class="button active">3D</a>
+		</div>
+		<div id="params"></div>
+		<div id="color_picker"></div>
+	</div>
+	
+	<div id="library">
+		<h2>Fractal Library</h2>
+		<p>The fractal parameters are saved using localStorage and will persist between browser sessions.</p>
+		
+		<p><a href="#save" class="button save" id="save">Save</a> <a id="paste_params" class="button">Paste parameters...</a></p>
+		
+		<div id="library_list">
+			<p id="paste_block">
+				<label>Paste parameter string below. Must be a valid JSON object.</label>
+				<textarea id="paste_input"></textarea>
+				<a id="apply_paste" class="button">Apply</a>
+				<a id="cancel_paste" class="button">Cancel</a>
+			</p>
+			
+			<table>
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Last updated</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr><td colspan="3">No shaders saved.</td></tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<div id="footer">
+		<span>v0.2 beta | <a href="mailto:&#116;&#111;&#109;&#64;&#115;&#117;&#98;&#98;&#108;&#117;&#101;&#46;c&#111;&#109;">Send feedback</a></span>
+		
+		<a href="http://www.subblue.com/">&copy; 2011 subblue.com</a>
+	</div>
+</div>
+
+<div id="not_supported">
+	<h1 class="logo">Fractal Lab</h1>
+	<p class="subheader">Interactive WebGL fractal explorer.</p>
+	
+	<div class="content">
+		<h2>WebGL not supported by your browser.</h2>
+		<p>Unfortunately it seems that your browser doesn't yet support WebGL required for Fractal Lab.</p>
+		<p>However, WebGL is currently officially supported and enabled by default on the very latest <a href="http://www.google.com/chrome">Google Chrome</a> and <a href="www.mozilla.com/firefox/beta/">Firefox 4 beta</a> browsers. You can also <a href="http://www.webkit.org/blog/603/webgl-now-available-in-webkit-nightlies/">enable it</a> on <a href="http://nightly.webkit.org/">WebKit nightly</a> builds too.</p>
+		<p><strong>Come back using one of these browsers to start exploring!</strong></p></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-64260-6']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+</body>
+</html>
