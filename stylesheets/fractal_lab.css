@@ -97,7 +97,7 @@ h1.logo {
 	width: 141px;
 	height: 30px;
 	text-indent: -1000px;
-	background: url("../images/logo.png") no-repeat 0 0;
+	background: url("/images/logo.png") no-repeat 0 0;
 	margin-top: -3px;
 	}
 p.subheader {

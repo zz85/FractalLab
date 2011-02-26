@@ -1,12 +1,12 @@
 package_assets: always
 package_path: ../assets
-embed_assets: on
+embed_assets: off
 compress_assets: on
 gzip_assets: off
 javascript_compressor: closure
 
 javascripts:
-  fractallab:
+  fractal_lab:
     - javascripts/jquery-1.5.min.js
     - javascripts/underscore-min.js
     - javascripts/super_slider.js
@@ -21,7 +21,7 @@ javascripts:
     - javascripts/application.js
 
 stylesheets:
-  fractallab:
+  fractal_lab:
     - stylesheets/color_picker.css
     - stylesheets/super_slider.css
     - stylesheets/fractal_lab.css
