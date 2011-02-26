@@ -3,8 +3,8 @@ precision highp float;
 #endif
 
 /**
- * FractalLab's uber 3D fractal shader
- * Last update: 19 February 2011
+ * Fractal Lab's uber 3D fractal shader
+ * Last update: 26 February 2011
  *
  * Changelog:
  *      0.1     - Initial release
@@ -17,8 +17,8 @@ precision highp float;
  * For more generative graphics experiments see:
  * http://www.subblue.com
  *
- * Licensed under the GPL Version 2 license.
- * http://www.gnu.org/licenses/gpl-2.0.html
+ * Licensed under the GPL Version 3 license.
+ * http://www.gnu.org/licenses/
  *
  * 
  * Credits and references

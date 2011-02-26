@@ -3,29 +3,20 @@ precision highp float;
 #endif
 
 /**
- * FractalLab's uber 2D fractal shader
+ * Fractal Lab's 2D fractal shader
  * Last update: 19 February 2011
  *
  * Changelog:
  *      0.1     - Initial release
  *
- * 
- * Copyright (c) 2011 Hyperlabs - Tom Beddard
- * http://www.hyperlabs.co.uk
+ * Copyright 2011, Tom Beddard
+ * http://www.subblue.com
  *
  * For more generative graphics experiments see:
- * http://www.subblue.com/blog
+ * http://www.subblue.com
  *
- * Licensed under the MIT License:
- * http://www.opensource.org/licenses/mit-license.php
- *
- * 
- * Credits and references
- * ======================
- * 
- * THE place to discuss fractals:
- * http://www.fractalforums.com/
- *
+ * Licensed under the GPL Version 3 license.
+ * http://www.gnu.org/licenses/
  *
 */
 #define camera2d 1
