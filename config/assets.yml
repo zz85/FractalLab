@@ -1,0 +1,28 @@
+package_assets: always
+package_path: ../assets
+embed_assets: on
+compress_assets: on
+gzip_assets: off
+javascript_compressor: closure
+
+javascripts:
+  fractallab:
+    - javascripts/jquery-1.5.min.js
+    - javascripts/underscore-min.js
+    - javascripts/super_slider.js
+    - javascripts/color.js
+    - javascripts/color_picker.js
+    - javascripts/gl_quad.js
+    - javascripts/camera.js
+    - javascripts/fractal_lab.js
+    - javascripts/indexed_local_storage.js
+    - javascripts/fractal_library.js
+    - javascripts/fps.js
+    - javascripts/application.js
+
+stylesheets:
+  fractallab:
+    - stylesheets/color_picker.css
+    - stylesheets/super_slider.css
+    - stylesheets/fractal_lab.css
+

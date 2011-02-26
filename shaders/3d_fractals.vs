@@ -2,7 +2,7 @@ attribute vec3 vertexPosition;
 
 uniform vec2  size;
 uniform float scale;
-uniform float surfaceSmoothness;
+uniform float surfaceDetail;
 uniform float cameraPitch;
 uniform float cameraRoll;
 uniform float cameraYaw;
@@ -54,7 +54,7 @@ void main()
     
     float fovfactor = 1.0 / sqrt(1.0 + cameraFocalLength * cameraFocalLength);
     float pixelScale = 1.0 / min(size.x, size.y);
-    epsfactor = 2.0 * fovfactor * surfaceSmoothness * pixelScale;
+    epsfactor = 2.0 * fovfactor * pixelScale * surfaceDetail;
     
     gl_Position = vec4(vertexPosition, 1.0);
 }

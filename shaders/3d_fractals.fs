@@ -11,14 +11,14 @@ precision highp float;
  *      0.2     - Refactor for Fractal Lab
  *
  * 
- * Copyright (c) 2011 Hyperlabs - Tom Beddard
- * http://www.hyperlabs.co.uk
+ * Copyright 2011, Tom Beddard
+ * http://www.subblue.com
  *
  * For more generative graphics experiments see:
- * http://www.subblue.com/blog
+ * http://www.subblue.com
  *
- * Licensed under the MIT License:
- * http://www.opensource.org/licenses/mit-license.php
+ * Licensed under the GPL Version 2 license.
+ * http://www.gnu.org/licenses/gpl-2.0.html
  *
  * 
  * Credits and references
@@ -32,31 +32,16 @@ precision highp float;
  * http://www.fractalforums.com/3d-fractal-generation/
  *
  *
- * The mandelbox algorithm and ambient occlusion approximation was taken from Boxplorer:
- * http://rrrola.wz.cz/downloads.html#effects
- * 
- * Copyright 1998-2009 Jan Kadlec
- * 
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
- * REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
- * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
- * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
- * OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
- *
 */
 
 #define MIN_EPSILON 6e-7
 #define MIN_NORM 1.5e-7
-#define dE MengerSponge             // {"label":"Fractal type", "control":"select", "options":["MengerSponge", "SphereSponge", "Mandelbulb", "Mandelbox", "OctahedralIFS", "DodecahedronIFS"]}
+#define dE MengerSponge             // {"label":"Fractal type", "control":"select", "options":["MengerSponge", "SphereSponge", "Mandelbulb", "Mandelbox", "MandelboxAlt", "OctahedralIFS", "DodecahedronIFS"]}
 
 #define maxIterations 8             // {"label":"Iterations", "min":1, "max":30, "step":1, "group_label":"Fractal parameters"}
 #define stepLimit 60                // {"label":"Max steps", "min":10, "max":300, "step":1}
+#define shadowSteps 10              // {"label":"Shadow steps", "min":0, "max":50, "step":1}
+
 #define aoIterations 4              // {"label":"AO iterations", "min":0, "max":10, "step":1}
 
 #define minRange 6e-5
@@ -64,18 +49,19 @@ precision highp float;
 #define antialiasing 0.5            // {"label":"Anti-aliasing", "control":"bool", "default":false, "group_label":"Render quality"}
 
 
-uniform float scale;                // {"label":"Scale",        "min":-10,  "max":10,   "step":0.1,     "default":2,    "group":"Fractal", "group_label":"Fractal parameters"}
+uniform float scale;                // {"label":"Scale",        "min":-10,  "max":10,   "step":0.01,     "default":2,    "group":"Fractal", "group_label":"Fractal parameters"}
 uniform float power;                // {"label":"Power",        "min":-20,  "max":20,   "step":0.1,     "default":8,    "group":"Fractal"}
-uniform float surfaceSmoothness;    // {"label":"Smoothness",   "min":0.1,  "max":2,    "step":0.01,    "default":0.6,  "group":"Fractal"}
-uniform float stepMultiplier;       // {"label":"Step multiplier",   "min":0.01,  "max":2,    "step":0.01,    "default":1,  "group":"Fractal"}
-uniform float boundingRadius;       // {"label":"Bounding radius", "min":0.1, "max":50, "step":0.01, "default":5, "group":"Fractal"}
+uniform float surfaceDetail;        // {"label":"Detail",   "min":0.1,  "max":2,    "step":0.01,    "default":0.6,  "group":"Fractal"}
+uniform float surfaceSmoothness;    // {"label":"Smoothness",   "min":0.01,  "max":1,    "step":0.01,    "default":0.8,  "group":"Fractal"}
+uniform float boundingRadius;       // {"label":"Bounding radius", "min":0.1, "max":150, "step":0.01, "default":5, "group":"Fractal"}
 uniform vec3  offset;               // {"label":["Offset x","Offset y","Offset z"],  "min":-3,   "max":3,    "step":0.01,    "default":[0,0,0],  "group":"Fractal", "group_label":"Offsets"}
+uniform vec3  shift;                // {"label":["Shift x","Shift y","Shift z"],  "min":-3,   "max":3,    "step":0.01,    "default":[0,0,0],  "group":"Fractal"}
 
 uniform float cameraRoll;           // {"label":"Roll",         "min":-180, "max":180,  "step":0.5,     "default":0,    "group":"Camera", "group_label":"Camera parameters"}
 uniform float cameraPitch;          // {"label":"Pitch",        "min":-180, "max":180,  "step":0.5,     "default":0,    "group":"Camera"}
 uniform float cameraYaw;            // {"label":"Yaw",          "min":-180, "max":180,  "step":0.5,     "default":0,    "group":"Camera"}
 uniform float cameraFocalLength;    // {"label":"Focal length", "min":0.1,  "max":3,    "step":0.01,    "default":0.9,  "group":"Camera"}
-uniform vec3  cameraPosition;       // {"label":["Camera x", "Camera y", "Camera z"],   "default":[0.467, -0.44, -1.5], "control":"camera", "group":"Camera", "group_label":"Position"}
+uniform vec3  cameraPosition;       // {"label":["Camera x", "Camera y", "Camera z"],   "default":[0.0, 0.0, -2.5], "control":"camera", "group":"Camera", "group_label":"Position"}
 
 uniform int   colorIterations;      // {"label":"Colour iterations", "default": 4, "min":0, "max": 30, "step":1, "group":"Colour", "group_label":"Base colour"}
 uniform vec3  color1;               // {"label":"Colour 1",  "default":[1.0, 1.0, 1.0], "group":"Colour", "control":"color"}
@@ -84,6 +70,7 @@ uniform vec3  color2;               // {"label":"Colour 2",  "default":[0, 0.53,
 uniform float color2Intensity;      // {"label":"Colour 2 intensity", "default":0.3, "min":0, "max":3, "step":0.01, "group":"Colour"}
 uniform vec3  color3;               // {"label":"Colour 3",  "default":[1.0, 0.53, 0.0], "group":"Colour", "control":"color"}
 uniform float color3Intensity;      // {"label":"Colour 3 intensity", "default":0, "min":0, "max":3, "step":0.01, "group":"Colour"}
+uniform bool  transparent;          // {"label":"Transparent background", "default":false, "group":"Colour"}
 uniform float gamma;                // {"label":"Gamma correction", "default":1, "min":0.1, "max":2, "step":0.01, "group":"Colour"}
 
 uniform vec3  light;                // {"label":["Light x", "Light y", "Light z"], "default":[-16.0, 100.0, -60.0], "min":-300, "max":300,  "step":1,   "group":"Shading", "group_label":"Light position"}
@@ -100,8 +87,8 @@ uniform float specularity;          // {"label":"Specularity",  "min":0,    "max
 uniform float specularExponent;     // {"label":"Specular exponent", "min":0, "max":50, "step":0.1,     "default":4,    "group":"Shading"}
 
 uniform vec2  size;                 // {"default":[400, 300]}
-uniform float aoIntensity;          // {"label":"AO intensity",     "min":0, "max":1, "step":0.01, "default":0.11,  "group":"Shading", "group_label":"Ambient occlusion"}
-uniform float aoSpread;             // {"label":"AO spread",    "min":0, "max":20, "step":0.01, "default":4.8,  "group":"Shading"}
+uniform float aoIntensity;          // {"label":"AO intensity",     "min":0, "max":1, "step":0.01, "default":0.15,  "group":"Shading", "group_label":"Ambient occlusion"}
+uniform float aoSpread;             // {"label":"AO spread",    "min":0, "max":20, "step":0.01, "default":9,  "group":"Shading"}
 
 uniform mat3  objectRotation;       // {"label":["Rotate x", "Rotate y", "Rotate z"], "group":"Fractal", "control":"rotation", "default":[0,0,0], "min":-360, "max":360, "step":1, "group_label":"Object rotation"}
 uniform mat3  fractalRotation1;     // {"label":["Rotate x", "Rotate y", "Rotate z"], "group":"Fractal", "control":"rotation", "default":[0,0,0], "min":-360, "max":360, "step":1, "group_label":"Fractal rotation 1"}
@@ -138,7 +125,7 @@ vec3 SphereSponge(vec3 w)
     float d1, r, md = 100000.0, cd = 0.0;
     
     for (int i = 0; i < maxIterations; i++) {
-        vec3 zz = mod(w * k, sphereHoles) - vec3(0.5 * sphereHoles);
+        vec3 zz = mod(w * k, sphereHoles) - vec3(0.5 * sphereHoles) + offset;
         r = length(zz);
         
         // distance to the edge of the sphere (positive inside)
@@ -220,7 +207,7 @@ vec3 OctahedralIFS(vec3 w)
     
     for (int i = 0; i < maxIterations; i++) {
         w *= fractalRotation1;
-        w = abs(w);
+        w = abs(w + shift) - shift;
         
         // Octahedral
         if (w.x < w.y) w.xy = w.yx;
@@ -248,6 +235,7 @@ vec3 OctahedralIFS(vec3 w)
 // ============================================================================================ //
 
 
+
 #ifdef dEDodecahedronIFS
 // Pre-calculations
 vec3 scale_offset = offset * (scale - 1.0);
@@ -265,7 +253,7 @@ vec3 DodecahedronIFS(vec3 w)
 
     for (int i = 0; i < maxIterations; i++) {
         w *= fractalRotation1;
-        w = abs(w);
+        w = abs(w + shift) - shift;
         
         t = w.x * phi3.z + w.y * phi3.y - w.z * phi3.x;
         if (t < 0.0) w += vec3(-2.0, -2.0, 2.0) * t * phi3.zyx;
@@ -327,10 +315,24 @@ vec3 Mandelbox(vec3 w)
         p0 = vec4(w.xyz, 1.0);  // p.w is knighty's DEfactor
     
     for (int i = 0; i < maxIterations; i++) {
+        // box fold:
+        // if (p > 1.0) {
+        //   p = 2.0 - p;
+        // } else if (p < -1.0) {
+        //   p = -2.0 - p;
+        // }
         p.xyz = clamp(p.xyz, -boxFold, boxFold) * 2.0 * boxFold - p.xyz;  // box fold
         p.xyz *= fractalRotation1;
+        
+        // sphere fold:
+        // if (d < minRad2) {
+        //   p /= minRad2;
+        // } else if (d < 1.0) {
+        //   p /= d;
+        // }
         float d = dot(p.xyz, p.xyz);
         p.xyzw *= clamp(max(fR2 / d, mR2), 0.0, 1.0);  // sphere fold
+        
         p.xyzw = p * scalevec.xxxy + p0 + vec4(offset, 0.0);
         p.xyz *= fractalRotation2;
 
@@ -346,11 +348,14 @@ vec3 Mandelbox(vec3 w)
 #endif
 
 
+
 // ============================================================================================ //
 
 
+
 #ifdef dEMandelbulb
-uniform float radiolariaFactor; // {"label":"Radiolaria factor", "min":-2, "max":2, "step":0.1, "default":0, "group":"Fractal", "group_label":"Additional parameters"}
+uniform float juliaFactor; // {"label":"Juliabulb factor", "min":0, "max":1, "step":0.01, "default":0, "group":"Fractal", "group_label":"Additional parameters"}
+uniform float radiolariaFactor; // {"label":"Radiolaria factor", "min":-2, "max":2, "step":0.1, "default":0, "group":"Fractal"}
 uniform float radiolaria;       // {"label":"Radiolaria", "min":0, "max":1, "step":0.01, "default": 0, "group":"Fractal"}
 
 
@@ -361,14 +366,14 @@ void powN(float p, inout vec3 z, float zr0, inout float dr)
     float zo0 = asin(z.z / zr0);
     float zi0 = atan(z.y, z.x);
     float zr = pow(zr0, p - 1.0);
-    float zo = (zo0) * p;
-    float zi = (zi0) * p;
+    float zo = zo0 * p;
+    float zi = zi0 * p;
     float czo = cos(zo);
 
     dr = zr * dr * p + 1.0;
     zr *= zr0;
 
-    z = zr * vec3(czo*cos(zi), czo*sin(zi), sin(zo));
+    z = zr * vec3(czo * cos(zi), czo * sin(zi), sin(zo));
 }
 
 
@@ -396,7 +401,8 @@ vec3 Mandelbulb(vec3 w)
     w *= objectRotation;
     
     vec3 z = w;
-    vec3 c = w;
+    vec3 c = mix(w, offset, juliaFactor);
+    vec3 d = w;
     float dr = 1.0;
     float r  = length(z);
     float md = 10000.0;
@@ -404,7 +410,7 @@ vec3 Mandelbulb(vec3 w)
     for (int i = 0; i < maxIterations; i++) {
         powN(power, z, r, dr);
         
-        z += w + offset;
+        z += c;
             
         if (z.y > radiolariaFactor) {
             z.y = mix(z.y, radiolariaFactor, radiolaria);
@@ -414,13 +420,13 @@ vec3 Mandelbulb(vec3 w)
         
         if (i < colorIterations) {
             md = min(md, r);
-            c = z;
+            d = z;
         }
         
         if (r > bailout) break;
     }
 
-    return vec3(0.5 * log(r) * r / dr, md, 0.33 * log(dot(c, c)) + 1.0);
+    return vec3(0.5 * log(r) * r / dr, md, 0.33 * log(dot(d, d)) + 1.0);
 }
 #endif
 
@@ -506,12 +512,11 @@ vec3 blinnPhong(vec3 color, vec3 i, vec3 p, vec3 n)
     float specular = pow(diffuse, specularExponent);
     //vec3  reflection = i - 2.0 * dot(i * n) * n;
     
-    
     return ambColor * color + color * diffuse + specular * specularity;
 }
 
 
-// // Standard Phong shading model
+// Standard Phong shading model
 // vec3 Phong(vec3 c, vec3 i, vec3 p, vec3 n)
 // {
 //     // Ambient colour based on background gradient
@@ -535,24 +540,35 @@ vec3 blinnPhong(vec3 color, vec3 i, vec3 p, vec3 n)
 
 
 // Ambient occlusion approximation.
-// Taken from the implementation in Boxplorer:
-// http://rrrola.wz.cz/downloads.html#effects
+// Based upon boxplorer's implementation which is derived from:
+// http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf
 float ambientOcclusion(vec3 p, vec3 n, float eps)
 {
-    eps *= aoSpread;
-    float o = 1.0;
-    float w = aoIntensity / eps;
-    float dist = 2.0 * eps;
-    float mi, d, D;
+    float o = 1.0;                  // Start at full output colour intensity
+    eps *= aoSpread;                // Spread diffuses the effect
+    float k = aoIntensity / eps;    // Set intensity factor
+    float d = 2.0 * eps;            // Start ray a little off the surface
     
-    for (int i = 0; i < aoIterations; i += 1) {
-        o -= (dist - dE(p + n * dist).x) * w;
-        w *= 0.5;
-        dist = dist * 2.0 - eps;
+    for (int i = 0; i < aoIterations; ++i) {
+        o -= (d - dE(p + n * d).x) * k;
+        d += eps;
+        k *= 0.5;                   // AO contribution drops as we move further from the surface 
     }
     
     return clamp(o, 0.0, 1.0);
 }
+
+
+// p pos, l direction to light - normalized, d stepwidth, i number of steps
+float shadow(vec3 p, vec3 l, float d) {
+	float o = 0.0;
+	
+	for (float i = float(shadowSteps); i > 0.0; i--) {
+		o += dE(p + l * i * d).x;
+	}
+	return clamp(1.0 - o, 0.0, 1.0);
+}
+
 
 // Calculate the output colour for each input pixel
 vec4 render(vec2 pixel)
@@ -578,7 +594,7 @@ vec4 render(vec2 pixel)
         for (int i = 0; i < stepLimit; i++) {
             steps = i;
             dist = dE(ray);
-            dist.x *= stepMultiplier;
+            dist.x *= surfaceSmoothness;
             
             // If we hit the surface on the previous step check again to make sure it wasn't
             // just a thin filament
@@ -603,7 +619,7 @@ vec4 render(vec2 pixel)
     float glow;
     
     if (hit) {
-        float aof = 1.0;
+        float aof = 1.0, shadows = 1.0;
         glow = clamp(glowAmount * innerGlowIntensity * 3.0, 0.0, 1.0);
 
         if (steps < 1 || ray_length < tmin) {
@@ -611,6 +627,7 @@ vec4 render(vec2 pixel)
         } else {
             normal = generateNormal(ray, eps);
             aof = ambientOcclusion(ray, normal, eps);
+            shadows = shadow(ray, normalize(ray - light), 2.0 * eps);
         }
         
         color.rgb = mix(color1, mix(color2, color3, dist.y * color2Intensity), dist.z * color3Intensity);
@@ -625,6 +642,7 @@ vec4 render(vec2 pixel)
         color.rgb = mix(bg_color.rgb, color.rgb, exp(-pow(ray_length * exp(fogFalloff), 2.0)) * fog);
         glow = clamp(glowAmount * outerGlowIntensity * 3.0, 0.0, 1.0);
         color.rgb = mix(color.rgb, outerGlowColor, glow);
+        if (transparent) color.a = 0.0;
     }
     
     // if (depthMap) {
@@ -655,6 +673,8 @@ void main()
 #else
     color = render(gl_FragCoord.xy);
 #endif
-
-    gl_FragColor = vec4(pow(color.rgb, vec3(1.0 / gamma)), 1.0);
+    
+    if (color.a == 0.0) discard;
+    
+    gl_FragColor = vec4(pow(color.rgb, vec3(1.0 / gamma)), color.a);
 }

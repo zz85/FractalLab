@@ -1,3 +1,5 @@
+/*jslint nomen: false*/
+
 // First person camera
 function Camera(x, y, z, pitch, yaw) {
 	this.x = parseFloat(x || 0);

@@ -191,7 +191,6 @@ vec3 hsv2rgb(vec3 hsv)
     return color;
 }
 
-
 float _bailout = exp(bailout);
 float log2Bailout = log(2.0 * log(_bailout));
 float logPower = log(abs(power));
@@ -295,7 +294,7 @@ vec3 colorMapping(float n, vec2 z) {
 
 
 vec4 render(vec2 pixel) {
-    vec3  color;
+    vec3  color = color3;
     float n = 0.0;
     vec2  z = ((pixel - (size * 0.5)) / size) * vec2(aspectRatio, 1.0) * cameraPosition.z + cameraPosition.xy;
     z *= rotationMatrix;

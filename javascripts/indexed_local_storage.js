@@ -1,8 +1,11 @@
-function IndexedLocalStorage (index_key, prefix_key) {
+/*jslint nomen: false*/
+/*global window, jQuery, localStorage, console, QUOTA_EXCEEDED_ERR*/
+
+function IndexedLocalStorage(index_key, prefix_key) {
 	this.index_key = index_key || "local_index";
 	this.prefix_key = prefix_key || "store_";
 	
-	if (typeof(localStorage) === 'undefined' ) {
+	if (typeof(localStorage) === 'undefined') {
 		return false;
 	} else {
 		return this;
@@ -47,7 +50,7 @@ IndexedLocalStorage.prototype = {
 	
 	updateIndex: function (params) {
 		var idx = this.index(),
-			updated;
+			updated, i, l;
 		
 		for (i = 0, l = idx.length; i < l; i += 1) {
 			if (idx[i].id === params.id) {
@@ -66,7 +69,7 @@ IndexedLocalStorage.prototype = {
 	
 	
 	destroy: function (id) {
-		var idx = this.index();
+		var idx = this.index(), i, l;
 		
 		try {
 			localStorage.removeItem(id);
@@ -81,7 +84,7 @@ IndexedLocalStorage.prototype = {
 			}
 			
 		} catch (e) {
-			console.log("localStorage removeItem error", e)
+			console.error("localStorage removeItem error", e);
 		}
 	},
 	
@@ -106,8 +109,8 @@ IndexedLocalStorage.prototype = {
 			localStorage.setItem(id, JSON.stringify(params));
 			status = true;
 		} catch (e) {
-		 	 if (e == QUOTA_EXCEEDED_ERR) {
-		 		console.error("Local storage quota exceeded!");
+			if (e === QUOTA_EXCEEDED_ERR) {
+				console.error("Local storage quota exceeded!");
 			} else {
 				console.error("Write local storage error", e);
 			}

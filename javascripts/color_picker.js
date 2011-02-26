@@ -16,7 +16,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-
+/*jslint nomen: false*/
 /*global window, jQuery, document, $, console, Color, GLQuad*/
 
 

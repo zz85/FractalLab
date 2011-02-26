@@ -13,7 +13,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-/*global window, $, document, GLQuad, console, Camera, FPS, SuperSlider*/
+/*global window, $, document, GLQuad, console, Camera, FPS, SuperSlider, Color*/
 
 function FractalLab(ui, opts) {
 	var self = this,
@@ -28,6 +28,7 @@ function FractalLab(ui, opts) {
 			fragment_path: null,
 			framerate: null,
 			color_picker: null,
+			ready_callback: null,
 			fps: 60,
 			mode: '3d'
 		},
@@ -42,48 +43,21 @@ function FractalLab(ui, opts) {
 	// OpenGL quad event listeners
 	this.quad
 		.bind("loaded", function (event) {
-			console.log("loaded shaders");
+			// console.log("loaded shaders");
 		})
 		.bind("ready", function (event) {
-			console.log("ready");
+			// console.log("ready");
 			self.init();
 			
 			$("#log").text("Shader compiled ok.");
+			$("#image_tab").trigger("click");
 		})
 		.bind("error", function (event) {
-			console.log("Error", $(event.target).data("GLQuad").error);
 			$("#log").text($(event.target).data("GLQuad").error);
 			$("#log_tab").trigger("click");
 			$("#compile").addClass("enabled");
 		});
 	
-	
-	// Code editors
-	$("#vertex_code, #fragment_code")
-		.change(function () {
-			$("#compile").addClass("enabled");
-		})
-		.bind("keydown", this.editTextarea)
-		.bind("scroll", function (event) {
-			$(event.target).data("scrollTop", event.target.scrollTop);
-		});
-	
-	
-	// Tab menu
-	$("#menu .image_tab, #menu .code_tab").click(function (event) {
-		return self.switchTabs(event);
-	});
-	
-	
-	// Recompile button
-	$("#compile").click(function (event) {
-		if ($(this).hasClass("enabled")) {
-			if (self.recompile()) {
-				$("#menu a:first").trigger("click");
-			}
-		}
-		return false;
-	});
 	
 }
 
@@ -114,8 +88,6 @@ FractalLab.prototype = {
 		$("#vertex_code").val(this.gl_quad.options.vertex.replace(/\t/g, "    "));
 		$("#fragment_code").val(this.gl_quad.options.fragment.replace(/\t/g, "    "));
 		
-		
-		
 		// Little hack
 		window.setTimeout(function () {
 			$("#compile").removeClass("enabled");
@@ -123,6 +95,10 @@ FractalLab.prototype = {
 		
 		this.resize();
 		this.main();
+		
+		if (!this.initialized && this.options.ready_callback) {
+			this.options.ready_callback();
+		}
 		
 		this.initialized = true;
 	},
@@ -210,9 +186,13 @@ FractalLab.prototype = {
 		});
 		
 		// jQuery events caused triggering delays here
-		this.gl_quad.canvas.parent().get(0).addEventListener("mousedown", this.mouseDownListener, false);
-		this.gl_quad.canvas.parent().get(0).addEventListener("mouseover", this.mouseOverListener, false);
-		this.gl_quad.canvas.parent().get(0).addEventListener("mouseout",  this.mouseOutListener,  false);
+		this.gl_quad.canvas
+		  .parent().get(0).addEventListener("mousedown", this.mouseDownListener, false);
+		this.gl_quad.canvas
+		  .parent().get(0).addEventListener("mouseover", this.mouseOverListener, false);
+		this.gl_quad.canvas
+		  .parent().get(0).addEventListener("mouseout",  this.mouseOutListener,  false);
+		
 		this.gl_quad.canvas.parent().bind("selectstart", function () {
 			return false;
 		});
@@ -228,6 +208,8 @@ FractalLab.prototype = {
 			if (self.mode !== 'cont') {
 				self.framerate.text('');
 			}
+			$(this).blur();
+			self.mouseUp();
 		});
 		
 		this.mode = $("#mode").val();
@@ -315,7 +297,6 @@ FractalLab.prototype = {
 			if (typeof(this.gl_quad.parameters["_" + p]) !== 'undefined') {
 				// replace rotation matrix with orignal vector
 				this.gl_quad.parameters[p] = this.gl_quad.parameters["_" + p];
-				// this.gl_quad.parameters["_" + p] = null;
 			}
 		}
 		
@@ -341,59 +322,6 @@ FractalLab.prototype = {
 			$(this).addClass("active");
 			$("#group_" + $(this).text()).show();
 		});
-	},
-	
-	
-	switchTabs: function (event) {
-		var tab = $(event.target),
-			panel = $("#" + tab.data("for")),
-			textarea = $("textarea", panel);
-		
-		if (!tab.hasClass("active")) {
-			$("#menu a").removeClass("active");
-			tab.addClass("active");
-			
-			$(".panel").hide();
-			
-			panel.show();
-			
-			if (textarea.length > 0) {
-				textarea.attr("scrollTop", textarea.data("scrollTop"));
-			}
-		}
-		
-		if (tab.data("for") === 'stage') {
-			this.editing = false;
-			this.keyEvents();
-			this.main();
-		} else {
-			this.editing = true;
-			$(document).unbind("keydown keyup");
-			window.clearInterval(this.key_listener_id);
-		}
-		
-		return false;
-	},
-	
-	
-	editTextarea: function (event) {
-		// console.log(event.which);
-		var input = $(event.target),
-			output,
-			s,
-			s1 = input[0].selectionStart,
-			s2 = input[0].selectionEnd;
-	
-		if (event.which === 9) {
-			// Insert tab
-			output = input.val().substring(0, s1) + "    " + input.val().substring(s2);
-			input.val(output);
-			input[0].setSelectionRange(s1 + 4, s1 + 4);
-			input.focus();
-			event.preventDefault();
-		}
-	
-		$("#compile").addClass("enabled");
 	},
 	
 	
@@ -461,7 +389,6 @@ FractalLab.prototype = {
 			// Group label
 			if (params.group_label) {
 				h3 = $("<h3>").text(params.group_label);
-				//p = $('<div class="subgroup">').attr("id", "control_" + params.name);
 				p.append(h3);
 			}
 			
@@ -553,6 +480,7 @@ FractalLab.prototype = {
 				
 				if (typeof(this.gl_quad.parameters[options.name]) !== 'undefined') {
 					color = new Color([this.gl_quad.parameters[options.name][0] * 255, this.gl_quad.parameters[options.name][1] * 255, this.gl_quad.parameters[options.name][2] * 255]);
+					
 				} else {
 					color = new Color([options['default'][0] * 255, options['default'][1] * 255, options['default'][2] * 255]);
 				}
@@ -583,6 +511,7 @@ FractalLab.prototype = {
 				option = $("<option>").attr("value", options.options[i]).text(options.options[i]);
 				control.append(option);
 			}
+			
 			control.val(options["default"]);
 			container.append(control);
 			
@@ -616,13 +545,15 @@ FractalLab.prototype = {
 			if (options.control === 'bool') {
 				if (event.target.checked) {
 					this.gl_quad.parameters[name[0]] = event.target.value;
+					
 				} else {
 					this.gl_quad.parameters[name[0]] = false;
 				}
+				
 			} else {
 				this.gl_quad.parameters[name[0]] = event.target.val || event.target.value;
 			}
-			// console.log(name[0], this.gl_quad.parameters[name[0]])
+			
 			$("#compile").addClass("enabled");
 			
 		} else {
@@ -651,10 +582,11 @@ FractalLab.prototype = {
 					} else {
 						this.gl_quad.parameters[name[0]] = false;
 					}
+					
 				} else {
 					this.gl_quad.parameters[name[0]] = event.target.val;
 				}
-				// console.log(name[0], this.gl_quad.parameters[name[0]], event)
+				
 				if (name[0] === 'stepSpeed') {
 					speed = Math.pow(event.target.val, 2) / 100;
 					this.camera.step(speed);
@@ -705,6 +637,20 @@ FractalLab.prototype = {
 				}, 100);
 			})
 			.toggle();
+	},
+	
+	
+	// Interacting
+	interacting: function (stage) {
+		if (stage) {
+			this.editing = false;
+			this.keyEvents();
+			this.main();
+		} else {
+			this.editing = true;
+			$(document).unbind("keydown keyup");
+			window.clearInterval(this.key_listener_id);
+		}
 	},
 	
 	
@@ -864,7 +810,6 @@ FractalLab.prototype = {
 	
 	
 	mouseDown: function (event) {
-		// console.log("mouse down");
 		var self = this;
 		this.ox = event.clientX;
 		this.oy = event.clientY;
@@ -874,12 +819,12 @@ FractalLab.prototype = {
 	
 	
 	mouseMove: function (event) {
-		// console.log("mouse move");
 		var dx = event.clientX - this.ox,
 			dy = event.clientY - this.oy,
 			step = 0.5,
 			step_factor,
-			rx, ry;
+			rx, ry, 
+			deg2rad = Math.PI / 180;
 
 		this.u = dx * step;
 		this.v = dy * step;
@@ -887,15 +832,8 @@ FractalLab.prototype = {
 		if (this.options.mode === '3d') {
 			// 3D camera
 			if (this.keystates.metaKey) {
-				// Spin fractal not camera
-				rx = this.objRotationX.value() + this.v;
-				if (rx > 360) {
-					rx = -360 + rx % 360;
-				} else if (rx < -360) {
-					rx = 360 + rx % 360;
-				}
-				this.objRotationX.value(rx);
-			
+				
+				// Spin fractal around fixed vertical axis
 				ry = this.objRotationY.value() + this.u;
 				if (ry > 360) {
 					ry = -360 + ry % 360;
@@ -903,7 +841,18 @@ FractalLab.prototype = {
 					ry = 360 + ry % 360;
 				}
 				this.objRotationY.value(ry);
-			
+				
+				// Spin fractal not camera
+				rx = this.objRotationX.value() + this.v;
+				
+				if (rx > 360) {
+					rx = -360 + rx % 360;
+				} else if (rx < -360) {
+					rx = 360 + rx % 360;
+				}
+				
+				this.objRotationX.value(rx);
+				
 			} else {
 				// Rotate camera
 				this.gl_quad.parameters.cameraYaw += this.u;
@@ -916,7 +865,7 @@ FractalLab.prototype = {
 
 				this.gl_quad.parameters.cameraPitch -= this.v;
 			}
-		} else if (this.options.mode === '2d'){
+		} else if (this.options.mode === '2d') {
 			// 2D camera
 			step_factor =  4 * this.camera.z * this.moveMultiplier / (this.gl_quad.canvas.width());
 			this.camera.x -= this.u * step_factor;

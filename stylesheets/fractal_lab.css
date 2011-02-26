@@ -30,9 +30,10 @@ h2 {
 a {
 	color: #FFF;
 	text-decoration: none;
+	font-weight: bold;
 	}
 a:hover {
-	color: #3399FF;
+	color: #0599E9;
 	}
 
 
@@ -294,7 +295,7 @@ a.button.active:hover {
 	-moz-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.5);
 	border-radius: 10px;
 	padding: 0;
-	z-index: 1000000;
+	z-index: 9999999;
 	opacity: 0.9;
 	}
 #help .content {
@@ -327,10 +328,11 @@ a.button.active:hover {
 	margin-top: 3px;
 	}
 .content a {
-	color: #0099FF;
+	color: #0599E9;
+	font-weight: bold;
 	}
 .content a:hover {
-	color: #33FFFF;
+	color: #FFF;
 	}
 
 
@@ -638,6 +640,7 @@ table td {
 	}
 table td.shader_title a {
 	font-weight: bold;
+	cursor: pointer;
 	}
 table td.shader_title:hover {
 	color: #FFF;
@@ -717,3 +720,6 @@ table tr.updated td {
 	color: #999;
 	background-color: #444;
 	}
+#footer span {
+    float: right;
+    }

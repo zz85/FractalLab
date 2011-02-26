@@ -283,7 +283,7 @@ GLQuad.prototype = {
 				}
 			} else {
 				
-				m = lines[i].match(new RegExp("^#define\\s*([\\w]+)\\s*([0-9a-zA-Z.\\-]+)[^\\{]*(\\{[^\\}]+\\})?"));
+				m = lines[i].match(new RegExp("^#define\\s*([\\w]+)\\s*([\\w.\\-]+)[^\\{]*(\\{[^\\}]+\\})?"));
 				
 				if (m) {
 					// Match a #define option

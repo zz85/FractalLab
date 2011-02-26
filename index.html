@@ -4,32 +4,37 @@
 <title>Fractal Lab - Interactive WebGL Fractal Explorer</title>
 
 <meta charset="utf-8">
-<!-- <link href='http://fonts.googleapis.com/css?family=Arvo:regular' rel='stylesheet' type='text/css'> -->
+
 <link href="stylesheets/super_slider.css" media="screen" rel="stylesheet" type="text/css" />
 <link href="stylesheets/color_picker.css" media="screen" rel="stylesheet" type="text/css" />
 <link href="stylesheets/fractal_lab.css" media="screen" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript" src="javascripts/jquery-1.5.min.js"></script>
+<script type="text/javascript" src="javascripts/underscore-min.js"></script>
 <script type="text/javascript" src="javascripts/super_slider.js"></script>
+<script type="text/javascript" src="javascripts/color.js"></script>
+<script type="text/javascript" src="javascripts/color_picker.js"></script>
 <script type="text/javascript" src="javascripts/gl_quad.js"></script>
 <script type="text/javascript" src="javascripts/camera.js"></script>
 <script type="text/javascript" src="javascripts/fractal_lab.js"></script>
-<script type="text/javascript" src="javascripts/fps.js"></script>
 <script type="text/javascript" src="javascripts/indexed_local_storage.js"></script>
-<script type="text/javascript" src="javascripts/color.js"></script>
-<script type="text/javascript" src="javascripts/color_picker.js"></script>
 <script type="text/javascript" src="javascripts/fractal_library.js"></script>
+<script type="text/javascript" src="javascripts/fps.js"></script>
 <script type="text/javascript" src="javascripts/application.js"></script>
 
 <script type="text/javascript" charset="utf-8">
-window.onload = function () {
+$(function () {
+	
 	if (GLQuad.supported()) {
 		$("#container").show();
 		application();
 	} else {
 		$("#not_supported").show();
 	}
-};
+	
+	$('a[href^="http://"]').attr({target: "_blank", title: "Link opens in a new window"});
+	
+});
 </script>
 
 </head>
@@ -46,7 +51,6 @@ window.onload = function () {
 			<a id="fullscreen" class="button">Fullscreen</a>
 			<a class="button save">Save</a>
 		</div>
-		
 	</div>
 	
 	<div id="body">
@@ -95,9 +99,31 @@ window.onload = function () {
 				<p>Pressing the <em>Save</em> button will store the current parameters, vertex and fragment code to a Local Storage database. Use the same name as an existing entry to update it.</p>
 				<p>Note: the fractal library is specific to the browser on the machine it is used upon. Press the <strong>[+]</strong> next to the saved item to view and copy it's parameters. These parameters can be pasted into a new fractal and enables a way to share fractals.</p>
 				
+				<h2>Rendering images</h2>
+				<p>By clicking the <em>Save image</em> button the current view will be saved as a PNG in the renders tab. To save the image to your hard drive drag it from the render tab to your desktop.</p>
+				<p>For best quality renders enable the <strong>Anti-aliasing</strong> checkbox and then recompile the fractal. <strong>Note: this will really slow down your computer and could freeze your system if you try to render an image that is too large!</strong></p>
+				
 				<h2>Editing the fractal formulas</h2>
 				<p>The formulas for the different fractals are defined in the <em>Fragment</em> shader tab. They are written in GLSL and is compatible to the OpenGL 2.0 ES level.</p>
 				<p>Parameter controls for the various uniform inputs are defined in a commented JSON block. See the code for example of how to define these.</p>
+				
+				<h2>Credits and links</h2>
+				<p>A massive credit is due to the collaborative effort that goes on at <a href="http://www.fractalforums.com/">Fractal Forums</a>, which is <em>the</em> place for discussions on anything to do with fractals.</p>
+				<p>Special thanks goes to Daniel White, Paul Nylander, Tom Lowe, David Makin, Buddhi, Joy Leys, Knighty and Jan Kadlec for their work on developing the 3D fractal algorithms.</p>
+				<p>There are other similar 3D fractal desktop apps also worth checking out:<br />
+					<a href="http://www.fractalforums.com/index.php?action=downloads;cat=5">Mandelbulb 3D</a><br />
+					<a href="http://sites.google.com/site/mandelbulber/home/">Mandelbulber</a><br />
+					<a href="http://sourceforge.net/projects/boxplorer/">Boxplorer</a><br />
+					<a href="http://syntopia.github.com/Fragmentarium/">Fragmentarium</a>
+				</p>
+				<p>Other GPU related apps:<br />
+					<a href="http://www.iquilezles.org/apps/shadertoy/">Shader Toy</a><br />
+					<a href="http://www.adobe.com/devnet/pixelbender.html">Pixel Bender</a>
+				</p>
+				<p>For other generative and mathematical related graphics projects please visit <a href="http://www.subblue.com/">subblue.com</a></p>
+				
+				<h2>License</h2>
+				<p>This software is released under the <a href="http://www.gnu.org/licenses/gpl-2.0.html">GPL version 2 license</a>.</p>
 			</div>
 		</div>
 		
@@ -156,8 +182,6 @@ window.onload = function () {
 		
 		<p><a href="#save" class="button save" id="save">Save</a> <a id="paste_params" class="button">Paste parameters...</a></p>
 		
-		
-		
 		<div id="library_list">
 			<p id="paste_block">
 				<label>Paste parameter string below. Must be a valid JSON object.</label>
@@ -180,11 +204,12 @@ window.onload = function () {
 				</tbody>
 			</table>
 		</div>
-		
 	</div>
 	
 	<div id="footer">
-		v0.1 alpha <a href="mailto:&#116;&#111;&#109;&#64;&#115;&#117;&#98;&#98;&#108;&#117;&#101;&#46;c&#111;&#109;">Send feedback</a> | Visit <a href="http://www.subblue.com/">subblue.com</a> for more experiments in generative graphics.
+		<span>v0.2 beta | <a href="mailto:&#116;&#111;&#109;&#64;&#115;&#117;&#98;&#98;&#108;&#117;&#101;&#46;c&#111;&#109;">Send feedback</a></span>
+		
+		<a href="http://www.subblue.com/">&copy; 2011 subblue.com</a>
 	</div>
 </div>
 
@@ -199,5 +224,17 @@ window.onload = function () {
 		<p><strong>Come back using one of these browsers to start exploring!</strong></p></div>
 	</div>
 </div>
+
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-64260-6']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
 </body>
 </html>
