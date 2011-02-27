@@ -1,19 +1,3 @@
-/**
- * Fractal lab application
- * 
- * Last update: 14 Feb 2011
- * 
- * Changelog:
- *   0.1   - Initial release
- * 
- * 
- * Copyright (c) 2011 Tom Beddard
- * http://www.subblue.com
- * 
- * Released under the MIT License: 
- * http://www.opensource.org/licenses/mit-license.php
- */
-
 /*global window, jQuery, document, $, console, FractalLab, ColorPicker, Image, fractal_library*/
 
 var application = function () {

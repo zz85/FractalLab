@@ -1,17 +1,5 @@
 /**
  * Frames per second
- * 
- * Last update: 12 Jan 2011
- * 
- * Changelog:
- *   0.1   - Initial release
- * 
- * 
- * Copyright (c) 2011 Tom Beddard
- * http://www.subblue.com
- * 
- * Released under the MIT License: 
- * http://www.opensource.org/licenses/mit-license.php
  */
 
 function FPS(average) {

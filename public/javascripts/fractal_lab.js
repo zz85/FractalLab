@@ -1,6 +1,6 @@
 /**
  * Fractal Lab
- * Last update: 07 Feb 2011
+ * Last update: 26 Feb 2011
  * 
  * Changelog:
  *   0.1   - Initial release
@@ -9,8 +9,8 @@
  * Copyright (c) 2011 Tom Beddard
  * http://www.subblue.com
  * 
- * Released under the MIT License: 
- * http://www.opensource.org/licenses/mit-license.php
+ * Licensed under the GPL Version 3 license.
+ * http://www.gnu.org/licenses/
  */
 
 /*global window, $, document, GLQuad, console, Camera, FPS, SuperSlider, Color*/
@@ -181,22 +181,6 @@ FractalLab.prototype = {
 				}	
 			}
 		};
-		
-		
-		// this.gl_quad.canvas.parent().bind("mousewheel DOMMouseScroll", function (event) {
-		// $("window").bind("mousewheel DOMMouseScroll", function (event) {
-		// 	console.log("mouse scroll")
-		// 	if (self.keymove) {
-		// 		event.preventDefault();
-		// 
-		// 		if (event.wheelDelta > 0) {
-		// 			self.impulse.forward = true;		// Zoom in
-		// 		} else if (event.wheelDelta < 0) {
-		// 			self.impulse.backward = true;		// Zoom out
-		// 		}	
-		// 	}
-		// 	
-		// });
 		
 		$(window).resize(function () {
 			window.clearTimeout(self.resizeTimeout);
