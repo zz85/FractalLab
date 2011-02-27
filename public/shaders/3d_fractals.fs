@@ -95,14 +95,16 @@ uniform mat3  fractalRotation1;     // {"label":["Rotate x", "Rotate y", "Rotate
 uniform mat3  fractalRotation2;     // {"label":["Rotate x", "Rotate y", "Rotate z"], "group":"Fractal", "control":"rotation", "default":[0,0,0], "min":-360, "max":360, "step":1, "group_label":"Fractal rotation 2"}
 uniform bool  depthMap;             // {"label":"Depth map", "default": false, "value":1, "group":"Shading"}
 
-varying float aspectRatio;
 varying vec3  w;
 varying vec3  u;
 varying vec3  v;
 varying mat3  cameraRotation;
-varying float epsfactor;
 
 
+float aspectRatio = size.x / size.y;
+float fovfactor = 1.0 / sqrt(1.0 + cameraFocalLength * cameraFocalLength);
+float pixelScale = 1.0 / min(size.x, size.y);
+float epsfactor = 2.0 * fovfactor * pixelScale * surfaceDetail;
 
 
 
@@ -637,7 +639,7 @@ vec4 render(vec2 pixel)
 // The main loop
 void main()
 {
-    vec4 color = vec4(0.0);
+    vec4 color = vec4(1.0);
     float n = 0.0;
     
 #ifdef antialiasing

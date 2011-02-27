@@ -9,12 +9,10 @@ uniform float cameraYaw;
 uniform float cameraFocalLength;
 uniform vec3  light;
 
-varying float aspectRatio;
 varying vec3  w;
 varying vec3  u;
 varying vec3  v;
 varying mat3  cameraRotation;
-varying float epsfactor;
 
 
 // Return rotation matrix for rotating around vector v by angle
@@ -35,11 +33,6 @@ void main()
     v = vec3(0, 1, 0);
     u = vec3(1, 0, 0);
     cameraRotation = rotationMatrixVector(v, 180.0 - cameraYaw) * rotationMatrixVector(u, -cameraPitch) * rotationMatrixVector(w, cameraRoll);
-    aspectRatio = size.x / size.y;
-    
-    float fovfactor = 1.0 / sqrt(1.0 + cameraFocalLength * cameraFocalLength);
-    float pixelScale = 1.0 / min(size.x, size.y);
-    epsfactor = 2.0 * fovfactor * pixelScale * surfaceDetail;
     
     gl_Position = vec4(vertexPosition, 1.0);
 }
