@@ -19,8 +19,8 @@ precision highp float;
  * http://www.gnu.org/licenses/
  *
 */
-#define camera2d 1
-#define dE Mandelbrot               // {"label":"Fractal type", "control":"select", "options":["Mandelbrot", "Julia"]}
+
+
 #define maxIterations 50            // {"label":"Iterations", "min":1, "max":400, "step":1, "group_label":"2D parameters"}
 #define antialiasing 0.5            // {"label":"Anti-aliasing", "control":"bool", "default":false, "group_label":"Render quality"}
 
@@ -52,8 +52,8 @@ uniform vec3  cameraPosition;       // {"label":["Camera x", "Camera y", "Camera
 
 uniform vec2  size;                 // {"default":[400, 300]}
 
-varying float aspectRatio;
-varying mat2  rotationMatrix;
+float aspectRatio = size.x / size.y;
+mat2  rotationMatrix;
 
 
 #define BAILOUT 4.0
@@ -319,6 +319,11 @@ void main()
 {
     vec4 color = vec4(0.0);
     float n = 0.0;
+    
+    float rc = cos(radians(rotation));
+    float rs = sin(radians(rotation));
+    rotationMatrix = mat2(rc, rs, -rs, rc);
+    
     
 #ifdef antialiasing
     for (float x = 0.0; x < 1.0; x += float(antialiasing)) {

@@ -95,16 +95,28 @@ uniform mat3  fractalRotation1;     // {"label":["Rotate x", "Rotate y", "Rotate
 uniform mat3  fractalRotation2;     // {"label":["Rotate x", "Rotate y", "Rotate z"], "group":"Fractal", "control":"rotation", "default":[0,0,0], "min":-360, "max":360, "step":1, "group_label":"Fractal rotation 2"}
 uniform bool  depthMap;             // {"label":"Depth map", "default": false, "value":1, "group":"Shading"}
 
-varying vec3  w;
-varying vec3  u;
-varying vec3  v;
-varying mat3  cameraRotation;
-
 
 float aspectRatio = size.x / size.y;
 float fovfactor = 1.0 / sqrt(1.0 + cameraFocalLength * cameraFocalLength);
 float pixelScale = 1.0 / min(size.x, size.y);
 float epsfactor = 2.0 * fovfactor * pixelScale * surfaceDetail;
+vec3  w = vec3(0, 0, 1);
+vec3  v = vec3(0, 1, 0);
+vec3  u = vec3(1, 0, 0);
+mat3  cameraRotation;
+
+
+// Return rotation matrix for rotating around vector v by angle
+mat3 rotationMatrixVector(vec3 v, float angle)
+{
+    float c = cos(radians(angle));
+    float s = sin(radians(angle));
+    
+    return mat3(c + (1.0 - c) * v.x * v.x, (1.0 - c) * v.x * v.y - s * v.z, (1.0 - c) * v.x * v.z + s * v.y,
+              (1.0 - c) * v.x * v.y + s * v.z, c + (1.0 - c) * v.y * v.y, (1.0 - c) * v.y * v.z - s * v.x,
+              (1.0 - c) * v.x * v.z - s * v.y, (1.0 - c) * v.y * v.z + s * v.x, c + (1.0 - c) * v.z * v.z);
+}
+
 
 
 
@@ -641,6 +653,9 @@ void main()
 {
     vec4 color = vec4(1.0);
     float n = 0.0;
+    
+    cameraRotation = rotationMatrixVector(v, 180.0 - cameraYaw) * rotationMatrixVector(u, -cameraPitch) * rotationMatrixVector(w, cameraRoll);
+    
     
 #ifdef antialiasing
     for (float x = 0.0; x < 1.0; x += float(antialiasing)) {
