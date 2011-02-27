@@ -30,6 +30,7 @@ function FractalLab(ui, opts) {
 			color_picker: null,
 			ready_callback: null,
 			fps: 60,
+			thumbnail_size: 128,
 			mode: '3d'
 		},
 		initialised = false;
@@ -287,10 +288,17 @@ FractalLab.prototype = {
 	
 	// Return shader object for saving
 	params: function (title) {
+		var height = Math.round(this.options.thumbnail_size * this.gl_quad.options.height / this.gl_quad.options.width),
+			thumb = $("<canvas>").attr({width: this.options.thumbnail_size, height: height}).get(0),
+			thumbContext = thumb.getContext("2d");
+		
+		thumbContext.drawImage(this.canvas(), 0, 0, this.options.thumbnail_size, height);
+		
 		return {
 			title: title,
 			vertex: $("#vertex_code").val(),
 			fragment: $("#fragment_code").val(),
+			thumbnail: thumb.toDataURL("image/png"),
 			params: this.gl_quad.parameters
 		};
 	},
@@ -933,6 +941,11 @@ FractalLab.prototype = {
 	
 	imageData: function () {
 		return this.gl_quad.getPixels();
+	},
+	
+	
+	canvas: function () {
+		return this.gl_quad.canvas[0];
 	},
 	
 	

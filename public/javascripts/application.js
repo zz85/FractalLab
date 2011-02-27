@@ -65,30 +65,30 @@ var application = function () {
 	
 	// Save image
 	$("#save_image").click(function () {
-		var src = $("#canvas").get(0).toDataURL("image/png"),
-			img = new Image();
+		var img = new Image();
 		
-		img.src = src;
+		img.src = fractal_lab.canvas().toDataURL("image/png");
+		
 		$("#render_panel p").after(img);
 		$("#render_tab").trigger("click");
 	});
 	
 	
-	// Quick test, still TODO
-	$("#save_tiled_image").click(function () {
-		var src = $("#canvas").get(0).toDataURL("image/png"),
-			img = new Image(),
-			new_canvas = $("<canvas>").attr({width: 1200, height: 1200}).get(0),
-			context = new_canvas.getContext("2d");
-		
-		img.onload = function () {
-			context.drawImage(img, 400, 400);
-			window.open(new_canvas.toDataURL("image/png"));
-		};
-		
-		img.src = src;
-		
-	});
+	// // Quick test, still TODO
+	// $("#save_tiled_image").click(function () {
+	// 	var src = $("#canvas").get(0).toDataURL("image/png"),
+	// 		img = new Image(),
+	// 		new_canvas = $("<canvas>").attr({width: 1200, height: 1200}).get(0),
+	// 		context = new_canvas.getContext("2d");
+	// 	
+	// 	img.onload = function () {
+	// 		context.drawImage(img, 400, 400);
+	// 		window.open(new_canvas.toDataURL("image/png"));
+	// 	};
+	// 	
+	// 	img.src = src;
+	// 	
+	// });
 	
 	
 	// Code editors

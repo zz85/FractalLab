@@ -109,11 +109,7 @@ IndexedLocalStorage.prototype = {
 			localStorage.setItem(id, JSON.stringify(params));
 			status = true;
 		} catch (e) {
-			if (e === QUOTA_EXCEEDED_ERR) {
-				console.error("Local storage quota exceeded!");
-			} else {
-				console.error("Write local storage error", e);
-			}
+			alert("Local storage quota exceeded. Could not save!");
 		}
 		
 		return status;

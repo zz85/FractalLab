@@ -144,6 +144,8 @@ var fractal_library = function (fractal_lab) {
 		} else {
 			$("#library_button").text("Close");
 			$("#library").show();
+			
+			$("#library_list").attr("scrollTop", $("#library_list").data("scrollTop") || 0);
 		}
 		
 	});
@@ -164,8 +166,10 @@ var fractal_library = function (fractal_lab) {
 		$.each(idx, function (i, row) {
 			var date = new Date(row.updated_at),
 				shader = fractal_index.find(row.id),
+				img = new Image(),
 				tr = $("<tr>")
 					.addClass(row.title === current_title ? "updated" : '')
+					.append($("<td>").addClass("thumbnail").html("&nbsp;"))
 					.append($("<td>")
 						.addClass("shader_title")
 						.append($("<a>")
@@ -187,6 +191,15 @@ var fractal_library = function (fractal_lab) {
 						.addClass("shader_destroy")
 						.html("&#x2716;"));
 			
+			if (shader.thumbnail) {
+				img.onload = function () {
+					$(".thumbnail", tr).html(img);
+				};
+				
+				img.src = shader.thumbnail;
+				// $(".thumbnail", tr).append(img);
+			}
+			
 			tbody.append(tr);
 		});
 		
@@ -201,7 +214,11 @@ var fractal_library = function (fractal_lab) {
 		event.preventDefault();
 		
 		var title = prompt("Enter a title for the fractal:", current_title),
-			id = fractal_index.find_by_title(title);
+			id = fractal_index.find_by_title(title),
+			canvas = $("#canvas").get(0),
+			aspect = canvas.width / canvas.height,
+			thumb = $("<canvas>").attr({width: 100, height: Math.round(100 / aspect)}).get(0),
+			thumbContext = thumb.getContext("2d");
 		
 		if (title && fractal_index.save(id, fractal_lab.params(title))) {
 			current_title = title;
@@ -309,6 +326,11 @@ var fractal_library = function (fractal_lab) {
 		listShaders();
 	});
 	
+	
+	// Track scroll position
+	$("#library_list").bind("scroll", function (event) {
+		$(event.target).data("scrollTop", event.target.scrollTop);
+	});
 	
 	listShaders();
 	

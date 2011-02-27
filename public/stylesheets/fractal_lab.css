@@ -131,7 +131,7 @@ p.subheader {
 	left: 0;
 	top: 0;
 	right: 0;
-	height: 30px;
+	height: 31px;
 	background-color: #222;
 	border-bottom: 4px solid #333;
 	}
@@ -238,7 +238,7 @@ a.button.active:hover {
 .panel {
 	position: absolute;
 	left: 3px;
-	top: 37px;
+	top: 38px;
 	bottom: 0;
 	right: 3px;
 	background: #000;
@@ -340,7 +340,7 @@ a.button.active:hover {
 /* Main canvas panel */
 #stage {
 	overflow: visible;
-	bottom: 35px;
+	bottom: 32px;
 	z-index: 50;
 	}
 #canvas {
@@ -366,7 +366,7 @@ a.button.active:hover {
 #info {
 	position: absolute;
 	left: 0;
-	bottom: -35px;
+	bottom: -32px;
 	right: 0;
 	background-color: #333;
 	padding: 10px 10px 0 10px;
@@ -639,6 +639,10 @@ table td {
 	color: #999;
 	padding: 3px 5px;
 	-webkit-transition-duration: 1s;
+	vertical-align: top;
+	}
+table td.thumbnail {
+	width: 130px;
 	}
 table td.shader_title a {
 	font-weight: bold;
