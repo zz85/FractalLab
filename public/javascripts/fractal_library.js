@@ -1,13 +1,15 @@
-/*global window, jQuery, document, $, console, FractalLab, IndexedLocalStorage, prompt, alert, confirm*/
+/*jslint nomen: false*/
+/*global window, jQuery, document, $, console, FractalLab, IndexedLocalStorage, prompt, alert, confirm, _*/
 
 var fractal_library = function (fractal_lab) {
 	var fractal_index = new IndexedLocalStorage("shader_index", "shader_"),
 		shader_index = [],
 		current_title = '',
+		self = this,
 		presets3d = [
 			{
 				title: 'Menger Cube',
-			 	params: '{"scale":1, "power":8, "surfaceDetail":0.6, "surfaceSmoothness":0.6, "boundingRadius":5, "offset":[0,0,0], "shift":[0,0,0], "cameraRoll":0, "cameraPitch":-31.5, "cameraYaw":-42.5, "cameraFocalLength":0.9, "cameraPosition":[1.9092639116358563,1.3790697535882102,-2.1953374193259187], "colorIterations":4, "color1":[1,1,1], "color1Intensity":0.57, "color2":[0.6666666666666666,0.792156862745098,0.8117647058823529], "color2Intensity":1.16, "color3":[1,0.53,0], "color3Intensity":0.57, "transparent":false, "gamma":1, "light":[-16,100,-60], "ambientColor":[0.5,0.3], "background1Color":[0,0.46,0.8], "background2Color":[0,0,0], "innerGlowColor":[0,0.6,0.8], "innerGlowIntensity":0.12, "outerGlowColor":[1,1,1], "outerGlowIntensity":0, "fog":0, "fogFalloff":0, "specularity":0.8, "specularExponent":4, "size":[912,807], "aoIntensity":0.14, "aoSpread":9.2, "objectRotation":[1,0,0,0,1,0,0,0,1], "fractalRotation1":[1,0,0,0,1,0,0,0,1], "fractalRotation2":[1,0,0,0,1,0,0,0,1], "depthMap":false, "sphereHoles":4, "sphereScale":1, "phi":1.618, "boxScale":0.5, "boxFold":1, "fudgeFactor":0, "juliaFactor":0, "radiolariaFactor":0, "radiolaria":0, "dE":"MengerSponge", "maxIterations":8, "stepLimit":91, "aoIterations":4, "antialiasing":false, "_objectRotation":[0,0,0], "_fractalRotation1":[0,0,0], "_fractalRotation2":[0,0,0], "stepSpeed":0.5}'
+				params: '{"scale":1, "power":8, "surfaceDetail":0.6, "surfaceSmoothness":0.6, "boundingRadius":5, "offset":[0,0,0], "shift":[0,0,0], "cameraRoll":0, "cameraPitch":-31.5, "cameraYaw":-42.5, "cameraFocalLength":0.9, "cameraPosition":[1.9092639116358563,1.3790697535882102,-2.1953374193259187], "colorIterations":4, "color1":[1,1,1], "color1Intensity":0.57, "color2":[0.6666666666666666,0.792156862745098,0.8117647058823529], "color2Intensity":1.16, "color3":[1,0.53,0], "color3Intensity":0.57, "transparent":false, "gamma":1, "light":[-16,100,-60], "ambientColor":[0.5,0.3], "background1Color":[0,0.46,0.8], "background2Color":[0,0,0], "innerGlowColor":[0,0.6,0.8], "innerGlowIntensity":0.12, "outerGlowColor":[1,1,1], "outerGlowIntensity":0, "fog":0, "fogFalloff":0, "specularity":0.8, "specularExponent":4, "size":[912,807], "aoIntensity":0.14, "aoSpread":9.2, "objectRotation":[1,0,0,0,1,0,0,0,1], "fractalRotation1":[1,0,0,0,1,0,0,0,1], "fractalRotation2":[1,0,0,0,1,0,0,0,1], "depthMap":false, "sphereHoles":4, "sphereScale":1, "phi":1.618, "boxScale":0.5, "boxFold":1, "fudgeFactor":0, "juliaFactor":0, "radiolariaFactor":0, "radiolaria":0, "dE":"MengerSponge", "maxIterations":8, "stepLimit":91, "aoIterations":4, "antialiasing":false, "_objectRotation":[0,0,0], "_fractalRotation1":[0,0,0], "_fractalRotation2":[0,0,0], "stepSpeed":0.5}'
 			},
 			{
 				title: 'Sphere Sponge',
@@ -28,7 +30,7 @@ var fractal_library = function (fractal_lab) {
 			{
 				title: 'Organism',
 				params: '{"scale":2.3, "power":8, "surfaceDetail":0.87, "surfaceSmoothness":1, "boundingRadius":16.58, "offset":[0.66,1.13,1.13], "shift":[0,0,0], "cameraRoll":0, "cameraPitch":7, "cameraYaw":-4.5, "cameraFocalLength":0.9, "cameraPosition":[0.290288,-0.457287,-3.662257], "colorIterations":4, "color1":[1,1,1], "color1Intensity":1.92, "color2":[0,0.53,0.8], "color2Intensity":0.3, "color3":[1,0.53,0], "color3Intensity":0.72, "transparent":false, "gamma":0.89, "light":[24,48,-84], "ambientColor":[0.2,0.41], "background1Color":[0.49411764705882355,0.7137254901960784,0.8823529411764706], "background2Color":[0.43529411764705883,0.3803921568627451,0.07450980392156863], "innerGlowColor":[0,0.6,0.8], "innerGlowIntensity":0.14, "outerGlowColor":[1,1,1], "outerGlowIntensity":0.13, "fog":0.05, "fogFalloff":0, "specularity":1.08, "specularExponent":19, "size":[912,807], "aoIntensity":0.17, "aoSpread":7.8, "objectRotation":[0.41667455535239106,0.30273178480123586,0.8571673007021123,0.09052552805133457,0.9244156130259893,-0.37048738597260156,-0.9045371433462058,0.23196818933819924,0.35777550984135725], "fractalRotation1":[0.33682408883346526,0.05939117461388472,-0.9396926207859083,0.16952510190908002,0.9778742587748251,0.12256905746680966,0.9261807453214635,-0.20058569840237642,0.319303311276612], "fractalRotation2":[0.9937680178757644,-0.08694343573875718,0.0697564737441253,0.08715574274765817,0.9961946980917455,0,-0.06949102930147368,0.006079677280626756,0.9975640502598242], "depthMap":false, "sphereHoles":4, "sphereScale":1, "phi":1.618, "boxScale":0.5, "boxFold":1, "fudgeFactor":0, "juliaFactor":0, "radiolariaFactor":0, "radiolaria":0, "dE":"DodecahedronIFS", "maxIterations":8, "stepLimit":60, "aoIterations":4, "antialiasing":false, "_objectRotation":[46,59,-36], "_fractalRotation1":[-21,-70,-10], "_fractalRotation2":[0,4,5], "stepSpeed":0.5}'
-			}
+			},
 			{
 				title: 'Mandelbulb',
 				params: '{"scale":1, "power":8, "surfaceDetail":0.6, "surfaceSmoothness":1, "boundingRadius":5.09, "offset":[0,0,0], "shift":[0,0,0], "cameraRoll":0, "cameraPitch":-22, "cameraYaw":1, "cameraFocalLength":0.9, "cameraPosition":[-0.113937,0.913814,-2.31178], "colorIterations":6, "color1":[1,1,1], "color1Intensity":0.66, "color2":[0.6666666666666666,0.792156862745098,0.8117647058823529], "color2Intensity":0.3, "color3":[1,0.53,0], "color3Intensity":0.6, "transparent":false, "gamma":1, "light":[174,210,-66], "ambientColor":[0.44,0.5], "background1Color":[0.8509803921568627,0.803921568627451,0.611764705882353], "background2Color":[0.09411764705882353,0.15294117647058825,0.1568627450980392], "innerGlowColor":[0,0.6,0.8], "innerGlowIntensity":0.12, "outerGlowColor":[1,1,1], "outerGlowIntensity":0, "fog":0.06, "fogFalloff":0, "specularity":0.81, "specularExponent":4.5, "size":[912,807], "aoIntensity":0.1, "aoSpread":3.4, "objectRotation":[1,0,0,0,-0.19936793441719708,-0.9799247046208296,0,0.9799247046208296,-0.19936793441719708], "fractalRotation1":[1,0,0,0,1,0,0,0,1], "fractalRotation2":[1,0,0,0,1,0,0,0,1], "depthMap":false, "sphereHoles":4, "sphereScale":1, "phi":1.618, "boxScale":0.5, "boxFold":1, "fudgeFactor":0, "juliaFactor":0, "radiolariaFactor":0, "radiolaria":0, "dE":"Mandelbulb", "maxIterations":8, "stepLimit":97, "aoIterations":4, "antialiasing":false, "_objectRotation":[101.5,0,0], "_fractalRotation1":[0,0,0], "_fractalRotation2":[0,0,0], "stepSpeed":0.5}'
@@ -96,7 +98,7 @@ var fractal_library = function (fractal_lab) {
 	
 	
 	// Install presets if not already present
-	function installPresets (sources, presets) {
+	function installPresets(sources, presets) {
 		var timeout;
 		
 		$.each(presets, function (idx, preset) {
@@ -266,9 +268,8 @@ var fractal_library = function (fractal_lab) {
 			current_title = shader.title;
 			
 			if (event.metaKey) {
-			  console.log("Meta key");
-			  shader.fragment = $("#fragment_code").val();
-			  shader.vertex = $("#vertex_code").val();
+				shader.fragment = $("#fragment_code").val();
+				shader.vertex = $("#vertex_code").val();
 			}
 			
 			fractal_lab.load(shader);

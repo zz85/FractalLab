@@ -182,22 +182,6 @@ FractalLab.prototype = {
 			}
 		};
 		
-		
-		// this.gl_quad.canvas.parent().bind("mousewheel DOMMouseScroll", function (event) {
-		// $("window").bind("mousewheel DOMMouseScroll", function (event) {
-		// 	console.log("mouse scroll")
-		// 	if (self.keymove) {
-		// 		event.preventDefault();
-		// 
-		// 		if (event.wheelDelta > 0) {
-		// 			self.impulse.forward = true;		// Zoom in
-		// 		} else if (event.wheelDelta < 0) {
-		// 			self.impulse.backward = true;		// Zoom out
-		// 		}	
-		// 	}
-		// 	
-		// });
-		
 		$(window).resize(function () {
 			window.clearTimeout(self.resizeTimeout);
 			self.resizeTimeout = window.setTimeout(function () {
