@@ -634,7 +634,7 @@ vec4 render(vec2 pixel)
         color.rgb = mix(bg_color.rgb, color.rgb, exp(-pow(ray_length * exp(fogFalloff), 2.0)) * fog);
         glow = clamp(glowAmount * outerGlowIntensity * 3.0, 0.0, 1.0);
         color.rgb = mix(color.rgb, outerGlowColor, glow);
-        if (transparent) color.a = 0.0;
+        if (transparent) color = vec4(0.0);
     }
     
     // if (depthMap) {
@@ -651,7 +651,7 @@ vec4 render(vec2 pixel)
 // The main loop
 void main()
 {
-    vec4 color = vec4(1.0);
+    vec4 color = vec4(0.0);
     float n = 0.0;
     
     cameraRotation = rotationMatrixVector(v, 180.0 - cameraYaw) * rotationMatrixVector(u, -cameraPitch) * rotationMatrixVector(w, cameraRoll);
@@ -669,7 +669,7 @@ void main()
     color = render(gl_FragCoord.xy);
 #endif
     
-    if (color.a == 0.0) discard;
+    if (color.a < 0.00392) discard; // Less than 1/255
     
     gl_FragColor = vec4(pow(color.rgb, vec3(1.0 / gamma)), color.a);
 }
