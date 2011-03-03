@@ -39,27 +39,14 @@ function FractalLab(ui, opts) {
 	this.quad = new GLQuad(this.options);
 	this.gl_quad = this.quad.data("GLQuad");
 	this.ui = $(ui);
-	
-	
-	// OpenGL quad event listeners
-	this.quad
-		.bind("loaded", function (event) {
-			// console.log("loaded shaders");
-		})
-		.bind("ready", function (event) {
-			// console.log("ready");
-			self.init();
-			
-			$("#log").text("Shader compiled ok.");
-			$("#image_tab").trigger("click");
-		})
-		.bind("error", function (event) {
-			$("#log").text($(event.target).data("GLQuad").error);
-			$("#log_tab").trigger("click");
-			$("#compile").addClass("enabled");
-		});
-	
-	
+	this.tick = 0;
+	this.keymove = false;
+	this.drawing = false;
+	this.changed = false;
+	this.updated = false;
+	this.editing = false;
+	this.keystates = {};
+	this.impulse = {};
 }
 
 
@@ -68,14 +55,6 @@ FractalLab.prototype = {
 	init: function () {
 		var self = this;
 		
-		this.tick = 0;
-		this.keymove = false;
-		this.drawing = false;
-		this.changed = false;
-		this.updated = false;
-		this.editing = false;
-		this.keystates = {};
-		this.impulse = {};
 		this.cameraUniform = 'cameraPosition';
 		this.objRotationUniform = 'objectRotation';
 		this.moveMultiplier = 1;
@@ -95,7 +74,6 @@ FractalLab.prototype = {
 		}, 100);
 		
 		this.resize();
-		this.main();
 		
 		if (!this.initialized && this.options.ready_callback) {
 			this.options.ready_callback();
@@ -257,6 +235,7 @@ FractalLab.prototype = {
 		this.gl_quad.draw();
 		
 		$("#resolution").text(w + "x" + h + " px");
+		this.main();
 	},
 	
 	
@@ -299,7 +278,7 @@ FractalLab.prototype = {
 			vertex: $("#vertex_code").val(),
 			fragment: $("#fragment_code").val(),
 			thumbnail: thumb.toDataURL("image/png"),
-			params: this.gl_quad.parameters
+			params: JSON.stringify(this.gl_quad.parameters)
 		};
 	},
 	
@@ -315,7 +294,7 @@ FractalLab.prototype = {
 			}
 		}
 		
-		return this.gl_quad.createProgram($("#vertex_code").val(), $("#fragment_code").val());
+		this.gl_quad.createProgram($("#vertex_code").val(), $("#fragment_code").val());
 	},
 	
 	
@@ -945,7 +924,7 @@ FractalLab.prototype = {
 	
 	
 	canvas: function () {
-		return this.gl_quad.canvas[0];
+		return this.quad[0];
 	},
 	
 	
@@ -960,6 +939,7 @@ FractalLab.prototype = {
 			}
 			
 			self.keyListener();
+			
 		}, 1000 / this.options.fps);
 	}
 	

@@ -1,6 +1,27 @@
 Fractal Lab Changelog
 =====================
 
+2 March 2011:
+* Reworked local storage to add SQL storage for webkit which falls back to localStorage for Firefox
+
+
+1 March 2011:
+* Added background checker so that you can see which areas will be transparent
+* Reworked the startup so that it doesn't compile immediately
+* Embedding CSS images in the stylesheet now
+
+
+28 Feb 2011:
+* Fixed regression with the antialiasing (thanks @pauldoo)
+* Removed background colour cast with transparent background and antialiasing.
+* Added thumbnails when saving images (currently limited to 5Mb due to localStorage limit)
+
+
+27 Feb 2011:
+* Fixes for Chrome on Windows - removed pre-calculations from vertex shader, all now done in the fragment.
+* Removed "Mandelbox Alt" formula as no longer used.
+
+
 26 Feb 2011:
 * Initial beta 0.1 test release on http://fractal.io
 

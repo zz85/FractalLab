@@ -96,7 +96,7 @@ h1.logo {
 	width: 141px;
 	height: 30px;
 	text-indent: -1000px;
-	background: url("/images/logo.png") no-repeat 0 0;
+	background: url("/images/embed/logo.png") no-repeat 0 0;
 	margin-top: -3px;
 	}
 p.subheader {
@@ -170,12 +170,12 @@ p.subheader {
 	margin-top: 2px;
 	cursor: default;
 	}
-#menu #save_image {
+.ready #menu a.button_tab.save {
 	background-color: #3F8DC1;
 	color: #FFF;
 	cursor: pointer;
 	}
-#menu #save_image:hover {
+.ready #menu a.button_tab.save:hover {
 	background-color: #0068AF;
 	}
 a.button,
@@ -204,6 +204,25 @@ a.button.active:hover {
 	float: right;
 	}
 
+
+@-webkit-keyframes pulse {
+	0% { background-color: #1D6AAB; }
+	100% { background-color: #2896FF; }
+	}
+
+.initialising #library_button {
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+/*	color: #333;*/
+	-webkit-animation-name: pulse;
+	-webkit-animation-duration: 0.5s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-direction: alternate;
+	-webkit-animation-timing-function: ease-in-out;
+	}
+/*.initialising #menu a.button_tab.save {
+    background-color: #111;
+    color: #555;
+    }*/
 
 
 
@@ -278,6 +297,26 @@ a.button.active:hover {
 	}
 
 
+/* Compiling */
+#compiling {
+	background: rgba(0, 0, 0, 0.9) url("/images/embed/loading.gif") 10px 50% no-repeat;
+	padding: 30px 20px 30px 90px;
+	font-size: 20px;
+	width: 300px;
+	position: absolute;
+	left: 50%;
+	margin-left: -150px;
+	top: 50%;
+	margin-top: -50px;
+	-webkit-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.8);
+	z-index: 9999999;
+	border-radius: 10px;
+	color: #FFF;
+	display: none;
+	}
+
+
+
 
 /* Help popup */
 #help {
@@ -289,12 +328,12 @@ a.button.active:hover {
 	top: 100px;
 	bottom: 100px;
 	overflow: hidden;
-	background-color: #111;
+	background: #111 url("/images/embed/close.png") 99% 1% no-repeat;
 	-webkit-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.5);
 	-moz-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.5);
-	border-radius: 10px;
+	border-radius: 15px;
 	padding: 0;
-	z-index: 9999999;
+	z-index: 9999990;
 	opacity: 0.9;
 	}
 #help .content {
@@ -333,8 +372,12 @@ a.button.active:hover {
 .content a:hover {
 	color: #FFF;
 	}
-
-
+.content .warning {
+    color: #FF5500;
+    }
+.content .notice {
+    color: #55FF99;
+    }
 
 
 /* Main canvas panel */
@@ -342,6 +385,7 @@ a.button.active:hover {
 	overflow: visible;
 	bottom: 32px;
 	z-index: 50;
+	background: url("/images/embed/bg_checker.gif") 0 0 repeat;
 	}
 #canvas {
 	max-width: 100%;
@@ -617,74 +661,61 @@ div.subgroup {
 	overflow: auto;
 	}
 
-table {
-	margin: 10px 0 0 10px;
-	padding: 0;
-	width: 98%;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
+#presets {
+	clear: both;
 	}
-table tr {
-	margin-bottom: 1px;
+#presets .preset {
+	float: left;
+	margin: 10px;
+	width: 130px;
+	padding: 10px;
+	background: #444;
+	border-radius: 3px;
 	}
-table th {
-	background-color: #999;
-	color: #000;
-	padding: 3px 5px;
-	text-align: left;
+#presets .preset:hover {
+	background-color: #222;
+	}
+#presets .preset .thumbnail {
+	width: 128px;
+	height: 100px;
+	overflow: hidden;
+	display: block;
+	float: left;
+	background-color: #222;
+	border: 1px solid #222;
+	}
+#presets .preset .thumbnail:hover {
+	border-color: #FFB344;
+	}
+#presets .preset .thumbnail img {
+	width: 128px;
+	height: auto
+	}
+#presets .preset .preset_title {
 	font-weight: bold;
-	}
-table td {
-	background-color: #444;
-	color: #999;
-	padding: 3px 5px;
-	-webkit-transition-duration: 1s;
-	vertical-align: top;
-	}
-table td.thumbnail {
+	height: 2.5em;
+	overflow: hidden;
+	padding-top: 5px;
+	float: left;
 	width: 130px;
 	}
-table td.shader_title a {
-	font-weight: bold;
-	cursor: pointer;
-	}
-table td.shader_title:hover {
-	color: #FFF;
-	}
-table td span.more {
-	padding: 0 10px;
-	cursor: pointer;
-	}
-table td span.more:hover {
-	color: #FFF;
-	}
-table td textarea {
-	width: 99%;
-	height: 6em;
-	border: none;
-	font-family: courier;
-	font-size: 11px;
-	background: #333;
-	color: #000;
-	margin-top: 5px;
-	outline: none;
+#presets .preset textarea {
 	display: none;
 	}
-table td.shader_date {
-	width: 18em;
-	}
-table td.shader_destroy {
-	font-weight: bold;
-	text-align: center;
+#presets .preset a {
+	color: #eee;	
 	cursor: pointer;
-	width: 3em;
 	}
-table tr:hover td {
-	background-color: #555;
+#presets .preset a:hover {
+	color: #FFB344;
 	}
-table tr.updated td {
-	background-color: #FF941A;
-	color: #FFF;
+#presets .preset .destroy {
+	float: right;
+	margin-left: 5px;
+	}
+#presets .preset .more {
+	float: right;
+	margin-left: 5px;
 	}
 
 
