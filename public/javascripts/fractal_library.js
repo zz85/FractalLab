@@ -86,27 +86,29 @@ var fractal_library = function (fractal_lab) {
 						} catch (e) {
 							console.log("error adding preset", preset.title);
 						}
-						console.log("add preset", preset.title)
+						
 						preset_manager.save(null,
 							{
 								title: preset.title,
 								vertex: sources.vertex,
 								fragment: sources.fragment,
-								thumbnail: null,
+								thumbnail: preset.thumbnail || null,
 								params: JSON.stringify(params)
 							},
-							next
+							function () {
+								_.defer(next);
+							}
 						);
 					} else {
 						ix += 1;
-						next();
+						_.defer(next);
 					}
 				});
 			
 				ix += 1;
 			};
 		
-		next();
+		_.defer(next);
 	}
 	
 	
