@@ -1,6 +1,6 @@
 package_assets: always
 package_path: ../public/assets
-embed_assets: off
+embed_assets: on
 compress_assets: on
 gzip_assets: off
 javascript_compressor: closure
@@ -15,7 +15,10 @@ javascripts:
     - public/javascripts/gl_quad.js
     - public/javascripts/camera.js
     - public/javascripts/fractal_lab.js
-    - public/javascripts/indexed_local_storage.js
+    - public/javascripts/sql_adapter.js
+    - public/javascripts/sql_store.js
+    - public/javascripts/local_storage_adapter.js
+    - public/javascripts/preset_manager.js
     - public/javascripts/fractal_library.js
     - public/javascripts/fps.js
     - public/javascripts/application.js

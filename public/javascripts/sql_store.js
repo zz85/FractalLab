@@ -1,182 +1,92 @@
-/*global window, $, console*/
-
-function SQLStore(name, options) {
-	var config = { 
-			version: '1.0',
-			name: name,
-			display_name: name,
-			max_size: 65536
-		};
+function SQLStore(options, callback) {
+	this.options = $.extend({}, {db_name: 'fractal_lab', table_name: 'presets'}, options);
 	
-	this.options = $.extend({}, config, options);
-	this.query = '';
-	this.values = [];
-	this.results = null;
-	
-	if (window.openDatabase) {
-		return this.init();
-	} else {
-		console.error("Database not supported");
-		return false;
-	}
+	return this.init(callback);
 }
 
 SQLStore.prototype = {
-	
-	init: function () {
-		// Try creating a database
-		try {
-			this.db = window.openDatabase(this.options.name, this.options.version, this.options.display_name, this.options.max_size);
-			return this;
-				
-		} catch (e) {
-			console.error(this.errorMessage(e));
-		}
-		return false;
-	},
-	
-	
-	// Create a table based on an array of hashes defining the fields
-	// 
-	// fields = [{'name': FIELD_NAME, 
-	//			  'type': FIELD_TYPE, 
-	//			  'default': DEFAULT_VALUE, 
-	//			  'null': TRUE/FALSE}]
-	// FIELD_TYPES: string, text, integer, bool
-	//
-	// An id primary key field is created by default unless id_field is false
-	createTable: function (table_name, fields, id_field, data_handler, error_handler) {
-		var sql = 'CREATE TABLE IF NOT EXISTS `' + table_name + '` (',
-			query_parts = [],
-			i, col, str;
-		
-		if (id_field !== false) {
-			query_parts.push('id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT');
-		}
-		
-		// Build query
-		for (i = 0; i < fields.length; i += 1) {
-			col = fields[i];
-			str = "`" + col.name + "`";
-			
-			switch (col.type) {
-			case 'text':
-				str += ' TEXT';
-				break;
-			case 'integer':
-				str += ' INTEGER';
-				break;
-			case 'datetime':
-				str += ' DATETIME';
-				break;
-			case 'bool':
-				str += ' SMALLINT(1)';
-				str += col['default'] ? ' DEFAULT `0`' : ' DEFAULT `1` ';
-				break;
-			default:
-				str += ' VARCHAR(255)';
-			}
-			
-			if (col['default'] && col.type !== 'bool') {
-				str += ' DEFAULT `' + col['default'] + '`';
-			}
-			
-			if (col['null'] === false || col.type === 'bool' || col['default']) {
-				str += ' NOT NULL';
-			} else {
-				str += ' NULL';
-			}
-			query_parts.push(str);
-		}
-		
-		// Execute final query
-		sql += query_parts.join(', ') + ")";
-		this.execute(sql, [], data_handler, error_handler);
-	},
-	
-	
-	// Drop the DB table
-	dropTable: function (table_name) {
-		this.execute("DROP TABLE `" + table_name + "`");
-	},
-	
-	
-	// Execute SQL query in a transaction
-	execute: function (query, values, data_handler, error_handler) {
-		var self = this;
-		
-		this.values = values || [];
-		this.query = query;
-		
-		this.db.transaction(function (tx) {
-			tx.executeSql(self.query, self.values, data_handler || self.dataHandler, error_handler || self.errorHandler);
-		});
-	},
-	
-	
-	nullDataHandler: function (tx, results) {
-		
-	},
-	
-	
-	errorHandler: function (tx, error) {
-		console.error("Error (" + error.code + "): " + error.message);
-	},
-	
-	
-	dataHandler: function (tx, results) {
-		this.results = results;
-	},
-	
-	
-	list: function (result_set) {
-		var rows = [],
-			row, col, result, i, l;
-		
-		this.results = result_set || this.results;
-		
-		if (this.results && this.results.rows) {
-			for (i = 0, l = this.results.rows.length; i < l; i += 1) {
-				result = this.results.rows.item(i);
-				row = {};
-				
-				for (col in result) {
-					if (result.hasOwnProperty(col)) {
-						row[col] = result[col];
-					}
-				}
-				rows.push(row);
-			}
-		}
-		
-		return rows;
-	},
-	
-	
-	// Return the current DB version string
-	version: function () {
-		return this.db.version;
-	},
-	
-	
-	// Expose the DB connection object directly
-	connection: function () {
-		return this.db;
-	},
-	
-	
-	errorMessage: function (num) {
-		var errors = [
-				"Unknown error: " + num,
-				"Error 1: Other database related error.",
-				"Error 2: The version of this database is not the version requested.",
-				"Error 3: Data set too large.",
-				"Error 4: Storage limit exceeded.",
-				"Error 5: Lock contention error.",
-				"Error 6: Constraint error.",
-				"Error 7: Timeout error."
+	init: function (callback) {
+		var fields = [
+				{name: 'title', type: 'string'},
+				{name: 'params', type: 'text'},
+				{name: 'vertex', type: 'text'},
+				{name: 'fragment', type: 'text'},
+				{name: 'thumbnail', type: 'mediumtext'},
+				{name: 'created_at', type: 'datetime'},
+				{name: 'updated_at', type: 'datetime'}
 			];
 		
-		return errors[num] || errors[0];
+		this.db = new SQLAdapter(this.options.db_name);
+		
+		if (this.db) {
+			this.db.createTable(this.options.table_name, fields, true, callback);
+		} else {
+			return false;
+		}
+		
+		return this;
+	},
+	
+	
+	index: function (callback) {
+		this.query("SELECT * FROM `" + this.options.table_name + "` ORDER BY title ASC", [], callback);
+	},
+	
+	
+	find: function (id, callback) {
+		this.query("SELECT * FROM `" + this.options.table_name + "` WHERE id = ?", [id], callback);
+	},
+	
+	
+	find_by_title: function (title, callback) {
+	  this.query("SELECT * FROM `" + this.options.table_name + "` WHERE title = ?", [title], callback);
+	},
+	
+	
+	save: function (id, params, callback) {
+	  if (id) {
+	    this.update(id, params, callback);
+	  } else {
+	    this.create(params, callback);
+	  }
+	},
+	
+	create: function (params, callback) {
+		var time = Date.now(),
+			sql = "INSERT INTO `" + this.options.table_name + "` " +
+				  "(title, params, vertex, fragment, thumbnail, created_at, updated_at) VALUES (?,?,?,?,?,?,?);";
+		
+		this.query(sql, [params.title, params.params, params.vertex, params.fragment, params.thumbnail, time, time], callback);
+	},
+	
+	
+	update: function (id, params, callback) {
+		var time = Date.now(),
+			sql = "UPDATE `" + this.options.table_name + "` " +
+				  "SET title = ?, params = ?, vertex = ?, fragment = ?, thumbnail = ?, updated_at = ?" +
+				  "WHERE id = ?";
+		
+		this.query(sql, [params.title, params.params, params.vertex, params.fragment, params.thumbnail, time, id], callback);
+	},
+	
+	
+	destroy: function (id, callback) {
+		var time = Date.now(),
+			sql = "DELETE FROM `" + this.options.table_name + "` " +
+				  "WHERE id = ?";
+		
+		this.query(sql, [id], callback);
+	},
+	
+	
+	query: function (sql, values, callback) {
+	  var self = this;
+	  
+		this.db.execute(sql, values, function (tx, results) {
+			if (typeof callback === 'function') {
+				callback(self.db.list(results));
+			}
+		});
 	}
 };
+

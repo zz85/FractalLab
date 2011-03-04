@@ -24,19 +24,6 @@ var application = function () {
 	$("#color_picker").append(color_picker);
 	
 	
-	// Set fractal type
-	$("#type_buttons a").click(function () {
-		$("#type_buttons a").removeClass("active");
-		$(this).addClass("active");
-		fractal_lab.load_by_path(
-			'shaders/' + this.id + '_fractals.vs?' + Date.now(),
-			'shaders/' + this.id + '_fractals.fs?' + Date.now()
-		);
-	});
-	
-	$("#3d").trigger("click");
-	
-	
 	// Fullscreen mode?
 	if (document.documentElement.webkitRequestFullScreen || document.documentElement.requestFullScreen) {
 		$("#fullscreen").click(function () {
@@ -49,46 +36,6 @@ var application = function () {
 	} else {
 		$("#fullscreen").hide();
 	}
-	
-	
-	// Help
-	$("#help_button").click(function () {
-		$("#help").toggle();
-	});
-	
-	$("#help").click(function (event) {
-		if (!$(event.target).is("a")) {
-			$("#help").hide();
-		}
-	});
-	
-	
-	// Save image
-	$("#save_image").click(function () {
-		var img = new Image();
-		
-		img.src = fractal_lab.canvas().toDataURL("image/png");
-		
-		$("#render_panel p").after(img);
-		$("#render_tab").trigger("click");
-	});
-	
-	
-	// // Quick test, still TODO
-	// $("#save_tiled_image").click(function () {
-	// 	var src = $("#canvas").get(0).toDataURL("image/png"),
-	// 		img = new Image(),
-	// 		new_canvas = $("<canvas>").attr({width: 1200, height: 1200}).get(0),
-	// 		context = new_canvas.getContext("2d");
-	// 	
-	// 	img.onload = function () {
-	// 		context.drawImage(img, 400, 400);
-	// 		window.open(new_canvas.toDataURL("image/png"));
-	// 	};
-	// 	
-	// 	img.src = src;
-	// 	
-	// });
 	
 	
 	// Code editors
@@ -120,18 +67,6 @@ var application = function () {
 		});
 	
 	
-	// Recompile button
-	$("#compile")
-		.click(function (event) {
-			if ($(this).hasClass("enabled")) {
-				if (fractal_lab.recompile()) {
-					$("#menu a:first").trigger("click");
-				}
-			}
-			return false;
-		});
-	
-	
 	// Tab menu
 	$("#menu .image_tab, #menu .code_tab")
 		.click(function (event) {
@@ -157,7 +92,107 @@ var application = function () {
 		});
 	
 	
+	// Save image
+	$("#save_image").click(function (event) {
+		event.preventDefault();
+
+		if ($("body").hasClass("ready")) {
+			var img = new Image();
+
+			img.src = fractal_lab.canvas().toDataURL("image/png");
+
+			$("#render_panel p").after(img);
+			$("#render_tab").trigger("click");
+		}
+	});
+	
+	
+	
+	// GL rendering events
+	$("#canvas")
+		.bind("before_compile", function () {
+			// The main shader compiling starts a little after this
+			$("#compiling").show();
+		})
+		.bind("ready", function () {
+			// Called after successful compile
+			fractal_lab.init();
+	
+			$("#log").text("Shader compiled ok.");
+			$("#image_tab").trigger("click");
+			
+			$("#compiling").hide();
+			$("#compile").text("Recompile");
+			$("body").addClass("ready");
+			$("#menu a:first").trigger("click");
+			
+			
+			// Recompile button
+		   	$("#compile")
+				.unbind("click")
+		   		.click(function (event) {
+		   			if ($(this).hasClass("enabled")) {
+		   				fractal_lab.recompile();
+		   			}
+		   			return false;
+		   		});
+		})
+		.bind("loaded", function (event) {
+			// console.log("loaded shaders");
+		})
+		.bind("error", function (event) {
+			$("#log").text($(event.target).data("GLQuad").error);
+			$("#compiling").hide();
+			$("#log_tab").trigger("click");
+			$("#compile").addClass("enabled");
+		});
+	
+	
+	
+	// Set fractal type
+	$("#type_buttons a").click(function () {
+		$("#type_buttons a").removeClass("active");
+		$(this).addClass("active");
+		
+		fractal_lab.load_by_path(
+			'shaders/' + this.id + '_fractals.vs?' + Date.now(),
+			'shaders/' + this.id + '_fractals.fs?' + Date.now()
+		);
+	});
+	
+	
+	// Help
+	$("#help_button").click(function () {
+		$("#help").toggle();
+	});
+	
+	$("#help").click(function (event) {
+		if (!$(event.target).is("a")) {
+			$("#help").hide();
+		}
+	});
+	
+	
+	// Render button
+	$("#compile")
+		.click(function (event) {
+			$("#3d").trigger("click");
+			$("#compile").unbind("click");
+			return false;
+		});
+	
+	
+	// Main body click kicks it all off
+	$("body").click(function (event) {
+		if (!event.target.href || !event.target.href.match(/^http\:\/\//)) {
+			$("body")
+				.removeClass("initialising")
+				.unbind("click");
+			$("#help").hide();
+		}
+	});
+	
+	
 	// Initalise the fractal library
 	fractal_library(fractal_lab);
-	
 };

@@ -196,7 +196,19 @@ GLQuad.prototype = {
 		return texture;
 	},
 	
+	
 	createProgram: function (vertex_src, fragment_src) {
+		var self = this;
+		this.canvas.trigger("before_compile");
+		
+		// Call after a little delay so that any before_compile events (like a loader) have chance
+		// to initiate.
+		window.setTimeout(function () {
+			self._createProgram(vertex_src, fragment_src);
+		}, 10);
+	},
+	
+	_createProgram: function (vertex_src, fragment_src) {
 		this.reset();
 		
 		var program = this.gl.createProgram(),
@@ -213,7 +225,6 @@ GLQuad.prototype = {
 			console.log("No program");
 			return false;
 		}
-		
 		
 		this.gl.attachShader(program, vs);
 		this.gl.attachShader(program, fs);

@@ -17,7 +17,10 @@
 <script type="text/javascript" src="javascripts/gl_quad.js"></script>
 <script type="text/javascript" src="javascripts/camera.js"></script>
 <script type="text/javascript" src="javascripts/fractal_lab.js"></script>
-<script type="text/javascript" src="javascripts/indexed_local_storage.js"></script>
+<script type="text/javascript" src="javascripts/sql_adapter.js"></script>
+<script type="text/javascript" src="javascripts/sql_store.js"></script>
+<script type="text/javascript" src="javascripts/local_storage_adapter.js"></script>
+<script type="text/javascript" src="javascripts/preset_manager.js"></script>
 <script type="text/javascript" src="javascripts/fractal_library.js"></script>
 <script type="text/javascript" src="javascripts/fps.js"></script>
 <script type="text/javascript" src="javascripts/application.js"></script>
@@ -38,7 +41,7 @@ $(function () {
 </script>
 
 </head>
-<body>
+<body class="initialising">
 <div id="container">
 	
 	<div id="header">
@@ -48,33 +51,36 @@ $(function () {
 		<div id="buttons">
 			<a id="help_button" class="button">Help</a>
 			<a id="library_button" class="button">Fractal library</a>
+			<a id="save_fractal" class="button save">Save fractal</a>
 			<a id="fullscreen" class="button">Fullscreen</a>
-			<a class="button save">Save</a>
 		</div>
 	</div>
 	
 	<div id="body">
 		<div id="menu">
-			<a class="tab image_tab active" data-for="stage">Image</a>
-			<a class="tab code_tab" data-for="render_panel" id="render_tab">Renders</a>
+			<a class="tab image_tab active" data-for="stage">Fractal</a>
+			<a class="tab code_tab" data-for="render_panel" id="render_tab">Saved images</a>
 			<a class="tab code_tab" data-for="vertex_code_panel">Vertex</a>
 			<a class="tab code_tab" data-for="fragment_code_panel">Fragment</a>
 			<a class="tab code_tab" data-for="log_panel" id="log_tab">Log</a>
-			<a class="tab button_tab" id="save_image">Save image</a>
-			<a class="tab button_tab" id="compile">Recompile</a>
+			<a class="tab button_tab save" id="save_image">Save image</a>
+			<a class="tab button_tab enabled" id="compile">Render</a>
 		</div>
+		
+		<div id="compiling">Compiling, please wait...</div>
 		
 		<div id="help">
 			<div class="content">
 				<h1>Help &amp; User Guide</h1>
 				<p>Fractal Lab is a WebGL based fractal explorer allowing you to explore 2D and 2D fractal. The fractals are rendered using the OpenGL Shading Language (GLSL) to enable real-time interactivity.</p>
-				<p><strong>WARNING: it is possible to create GLSL fractal shaders that will lock up your GPU requiring a hard reboot if pushed too hard. Use at your own risk!</strong></p>
+				<p class="warning"><strong>WARNING: it is possible to create GLSL fractal shaders that will lock up your GPU requiring a hard reboot if pushed too hard. Use at your own risk!</strong></p>
+				
+				<p class="notice">Click the <strong>Render</strong> button to start, or choose from a preset in the <strong>Fractal library</strong>.</p>
 
 				<h2>Navigation controls</h2>
 				<p>Click and drag with the mouse to pan the camera.</p>
 
 				<ul style="list-style: none; margin: 0; padding: 0 0 0 10px;">
-					<li><strong>h</strong> - show this help screen</li>
 					<li><strong>w</strong> - forward</li>
 					<li><strong>s</strong> - backward</li>
 					<li><strong>a</strong> - strafe left</li>
@@ -170,7 +176,7 @@ $(function () {
 	<div id="shaderUI">
 		<div id="type_buttons">
 			<a id="2d" class="button">2D</a>
-			<a id="3d" class="button active">3D</a>
+			<a id="3d" class="button">3D</a>
 		</div>
 		<div id="params"></div>
 		<div id="color_picker"></div>
@@ -190,19 +196,10 @@ $(function () {
 				<a id="cancel_paste" class="button">Cancel</a>
 			</p>
 			
-			<table>
-				<thead>
-					<tr>
-						<th colspan="2">Title</th>
-						<th>Last updated</th>
-						<th>&nbsp;</th>
-					</tr>
-				</thead>
-
-				<tbody>
-					<tr><td colspan="3">No shaders saved.</td></tr>
-				</tbody>
-			</table>
+			<div id="presets">
+				
+			</div>
+			
 		</div>
 	</div>
 	
