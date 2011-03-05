@@ -253,6 +253,7 @@ FractalLab.prototype = {
 		
 		this.gl_quad.reset();
 		this.gl_quad.parameters = shader.params;
+		this.default_params = this.gl_quad.parameters;
 		this.stepSpeed = shader.params.stepSpeed;
 		this.recompile();
 	},
@@ -260,8 +261,16 @@ FractalLab.prototype = {
 	
 	// Load shaders from URLs
 	load_by_path: function (vertex_path, fragment_path) {
+		this.default_params = this.gl_quad.parameters;
 		this.gl_quad.reset(true);
 		this.gl_quad.loadShaders(vertex_path, fragment_path);
+	},
+	
+	
+	// Reset to default params
+	reset_params: function () {
+		this.gl_quad.parameters = this.default_params || this.gl_quad.parameters;
+		this.recompile();
 	},
 	
 	

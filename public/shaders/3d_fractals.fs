@@ -514,14 +514,20 @@ bool intersectBoundingSphere(vec3 origin,
 
 
 // Calculate the gradient in each dimension from the intersection point
-vec3 generateNormal(vec3 z, float e)
+vec3 generateNormal(vec3 z, float d)
 {
-    vec2 eps = vec2(0, max(e * 0.5, MIN_NORM));
-        
-    return normalize(vec3(
-            dE(z + eps.yxx).x - dE(z - eps.yxx).x, 
-            dE(z + eps.xyx).x - dE(z - eps.xyx).x, 
-            dE(z + eps.xxy).x - dE(z - eps.xxy).x));
+    float e = max(d * 0.5, MIN_NORM);
+    
+    float dx1 = dE(z + vec3(e, 0, 0)).x;
+    float dx2 = dE(z - vec3(e, 0, 0)).x;
+    
+    float dy1 = dE(z + vec3(0, e, 0)).x;
+    float dy2 = dE(z - vec3(0, e, 0)).x;
+    
+    float dz1 = dE(z + vec3(0, 0, e)).x;
+    float dz2 = dE(z - vec3(0, 0, e)).x;
+    
+    return normalize(vec3(dx1 - dx2, dy1 - dy2, dz1 - dz2));
 }
 
 

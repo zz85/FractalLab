@@ -150,7 +150,7 @@ var application = function () {
 	
 	
 	// Set fractal type
-	$("#type_buttons a").click(function () {
+	$("#type_buttons a").not("#reset").click(function () {
 		$("#type_buttons a").removeClass("active");
 		$(this).addClass("active");
 		
@@ -178,6 +178,12 @@ var application = function () {
 		.click(function (event) {
 			$("#3d").trigger("click");
 			$("#compile").unbind("click");
+			return false;
+		});
+	
+	$("#reset")
+		.click(function (event) {
+			fractal_lab.reset_params();
 			return false;
 		});
 	
