@@ -375,6 +375,9 @@ a.button.active:hover {
 .content .warning {
     color: #FF5500;
     }
+.content .windows {
+    color: #FDEE00;
+    }
 .content .notice {
     color: #55FF99;
     }
@@ -549,6 +552,20 @@ div.subgroup {
 
 
 /* Parameters block */
+.save,
+#menu .code_tab,
+#menu .save,
+#reset {
+	display: none;
+	}
+.ready #paste_params,
+.ready #menu .code_tab,
+.ready #menu .save,
+.ready .save,
+.ready #reset {
+	display: block;
+	}
+
 #params {
 	overflow: hidden;
 	position: absolute;

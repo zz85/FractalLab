@@ -39,7 +39,7 @@ uniform float colorCycle;           // {"label":"Colour cycle", "min":0,  "max":
 uniform float colorCycleOffset;     // {"label":"Colour cycle offset", "min":-10,  "max":10,   "step":0.01,     "default":0,    "group":"Colour"}
 uniform bool  colorCycleMirror;     // {"label":"Colour mirror", "default":false,    "group":"Colour"}
 uniform bool  hsv;                  // {"label":"Rainbow", "default":false,    "group":"Colour"}
-uniform float iterationColorBlend;  // {"label":"Iteration blend", "min":1,  "max":50,   "step":0.01,     "default":1,    "group":"Colour"}
+uniform float iterationColorBlend;  // {"label":"Iteration blend", "min":0,  "max":50,   "step":0.01,     "default":0,    "group":"Colour"}
 
 uniform int   colorIterations;      // {"label":"Colour iterations", "default": 4, "min":0, "max": 30, "step":1, "group":"Colour", "group_label":"Base colour"}
 uniform vec3  color1;               // {"label":"Colour 1",  "default":[1.0, 1.0, 1.0], "group":"Colour", "control":"color"}

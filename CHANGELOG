@@ -1,5 +1,16 @@
-Fractal Lab Changelog
-=====================
+Fractal Lab Change Log
+======================
+
+
+5 March 2011:
+* Reworked the normal calculation to make it ANGLE friendly. The 3D shaders now seem to compile correctly on Windows, although still take a while!
+* Added a parameter reset button, although currently doesn't reset the camera position
+
+
+4 March 2011:
+* Added a manifest file for offline caching
+* Extended the preset file to include the thumbnails
+
 
 2 March 2011:
 * Reworked local storage to add SQL storage for webkit which falls back to localStorage for Firefox
