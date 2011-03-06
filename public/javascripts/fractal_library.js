@@ -133,10 +133,17 @@ var fractal_library = function (fractal_lab) {
 	
 	// Create the table rows for the shader listing
 	function listShaders() {
-		console.log("list shaders")
+		
 		var presets = $("#presets"),
 			buildList = function (rs) {
 				presets.html("");
+				
+				if (rs.length === 0) {
+					// Extra check for missing presets
+					localStorage.setItem("fractal_lab_initialised", false);
+					loadPresets("javascripts/presets.js");
+					return false;
+				}
 				
 				$.each(rs, function (i, row) {
 					
