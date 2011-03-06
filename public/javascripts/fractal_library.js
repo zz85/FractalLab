@@ -155,7 +155,7 @@ var fractal_library = function (fractal_lab) {
 									.data("id", row.id)
 									.attr("title", "Click to delete")
 									.addClass("destroy")
-									.html("&#x2716;"))
+									.html("[-]"))
 								.append($("<a>")
 									.data("id", row.id)
 									.attr("title", "Click to show params for copying")

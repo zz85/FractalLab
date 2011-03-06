@@ -37,6 +37,12 @@ $(function () {
 	
 	$('a[href^="http://"]').attr({target: "_blank", title: "Link opens in a new window"});
 	
+	if (navigator.userAgent.match(/windows/i)) {
+		$("p.windows").show();
+	} else {
+		$("p.windows").hide();
+	}
+	
 });
 </script>
 
