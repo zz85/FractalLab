@@ -6,10 +6,10 @@ CACHE:
 /favicon.ico
 /assets/fractal_lab-datauri.css?20110306
 /assets/fractal_lab.js?20110306
-/shaders/2d_fractal.fs
-/shaders/2d_fractal.vs
-/shaders/3d_fractal.fs
-/shaders/3d_fractal.fs
+/shaders/2d_fractals.fs
+/shaders/2d_fractals.vs
+/shaders/3d_fractals.fs
+/shaders/3d_fractals.fs
 /shaders/color_picker.fs
 /shaders/color_picker.vs
 
