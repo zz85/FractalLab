@@ -666,6 +666,7 @@ FractalLab.prototype = {
 		$(document)
 			.bind("keydown", function (event) {
 				self.moveMultiplier = 1;
+				// console.log(event.which)
 				
 				if (event.shiftKey) {
 					self.moveMultiplier = 10;
@@ -770,7 +771,30 @@ FractalLab.prototype = {
 			step = $("#stepSpeed").data("superslider").value() * step_factor * 2;
 			$("#stepSpeed").data("superslider").value(step);
 		}
-
+		
+		// Fullscreen mode
+		if (this.keystates[70] || this.keystates[27]) {
+			// f, Esc
+			this.keystates[70] = false;
+			this.keystates[27] = false;
+			$("#fullscreen").trigger("click");
+		}
+		
+		// Save image
+		if (this.keystates[73]) {
+			// i
+			this.keystates[73] = false;
+			$("#save_image").trigger("click");
+		}
+		
+		// Preview mode
+		if (this.keystates[80]) {
+			// p
+			this.keystates[80] = false;
+			$("#scale_size").attr("checked", !$("#scale_size").attr("checked"));
+			this.resize();
+		}
+		
 		// Strafe side to side
 		if (this.keystates[37] || this.keystates[65]) {
 			// a or left arrow
@@ -782,7 +806,7 @@ FractalLab.prototype = {
 			this.changed = true;
 			this.camera.strafeRight(this.camera.step() * step_factor);	
 		}
-
+		
 		// Render changes
 		if (this.changed || this.mode === 'cont') {
 			if (this.camera) {

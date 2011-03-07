@@ -25,17 +25,34 @@ var application = function () {
 	
 	
 	// Fullscreen mode?
-	if (document.documentElement.webkitRequestFullScreen || document.documentElement.requestFullScreen) {
-		$("#fullscreen").click(function () {
-			if (document.documentElement.webkitRequestFullScreen) {
-				document.documentElement.webkitRequestFullScreen();
-			} else if (document.documentElement.requestFullScreen) {
-				document.documentElement.requestFullScreen();
-			}
-		});
-	} else {
-		$("#fullscreen").hide();
-	}
+	// if (document.documentElement.webkitRequestFullScreen || document.documentElement.requestFullScreen) {
+	// 	$("#fullscreen").click(function () {
+	// 		if (document.documentElement.webkitRequestFullScreen) {
+	// 			document.documentElement.webkitRequestFullScreen();
+	// 		} else if (document.documentElement.requestFullScreen) {
+	// 			document.documentElement.requestFullScreen();
+	// 		}
+	// 	});
+	// } else {
+	// 	$("#fullscreen").hide();
+	// }
+	
+	$("#fullscreen").click(function () {
+		var canvas = $("#stage").detach();
+		
+		if ($("body").hasClass("fullscreen")) {
+			$("#help").after(canvas);
+		} else {
+			$("body").append(canvas);
+		}
+		
+		if ($("#library:visible").length > 0) {
+			$("#library_button").trigger("click");
+		}
+		
+		$("body").toggleClass("fullscreen");
+		fractal_lab.resize();
+	});
 	
 	
 	// Code editors

@@ -4,8 +4,8 @@ CACHE MANIFEST
 
 CACHE:
 /favicon.ico
-/assets/fractal_lab-datauri.css?20110306a
-/assets/fractal_lab.js?20110306a
+/assets/fractal_lab-datauri.css?20110307
+/assets/fractal_lab.js?20110307
 /shaders/2d_fractals.fs
 /shaders/2d_fractals.vs
 /shaders/3d_fractals.fs
