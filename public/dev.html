@@ -58,7 +58,7 @@ $(function () {
 			<a id="help_button" class="button">Help</a>
 			<a id="library_button" class="button">Fractal library</a>
 			<a id="save_fractal" class="button save">Save fractal</a>
-			<a id="fullscreen" class="button">Fullscreen</a>
+			<a id="fullscreen" class="button" title="Esc or f key to toggle fullscreen">Fullscreen</a>
 		</div>
 	</div>
 	
@@ -69,7 +69,7 @@ $(function () {
 			<a class="tab code_tab" data-for="vertex_code_panel">Vertex</a>
 			<a class="tab code_tab" data-for="fragment_code_panel">Fragment</a>
 			<a class="tab code_tab" data-for="log_panel" id="log_tab">Log</a>
-			<a class="tab button_tab save" id="save_image">Save image</a>
+			<a class="tab button_tab save" id="save_image" title="i key to save image">Save image</a>
 			<a class="tab button_tab enabled" id="compile">Render</a>
 		</div>
 		
@@ -98,6 +98,9 @@ $(function () {
 					<li><strong>e</strong> - move up</li>
 					<li><strong>z</strong> - decrease speed</li>
 					<li><strong>x</strong> - increase speed</li>
+					<li><strong>f or Esc</strong> - toggle fullscreen mode</li>
+					<li><strong>p</strong> - toggle preview mode</li>
+					<li><strong>i</strong> - save image</li>
 				</ul>
 
 				<p>
@@ -159,7 +162,7 @@ $(function () {
 						</select>
 					</label>
 					
-					<label for="scale_size"><input type="checkbox" value="1" id="scale_size" checked> Preview mode</label>
+					<label for="scale_size" title="p to toggle preview"><input type="checkbox" value="1" id="scale_size" checked> Preview mode</label>
 				</div>
 
 			</div>

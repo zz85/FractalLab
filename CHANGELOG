@@ -1,6 +1,14 @@
 Fractal Lab Change Log
 ======================
 
+7 March 2011:
+* Added fullscreen mode and keyboard shortcuts for other commands
+
+
+6 March 2011:
+* Disabled the application cache for the moment - causing too many problems
+* Added an extra check for the fractal library listing - will re-import it if the library is emptied
+
 
 5 March 2011:
 * Reworked the normal calculation to make it ANGLE friendly. The 3D shaders now seem to compile correctly on Windows, although still take a while!

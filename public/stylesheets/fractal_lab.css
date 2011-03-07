@@ -8,7 +8,7 @@ body {
 	font-size: 12px;
 	font-family: arial, serif;
 	-webkit-font-smoothing: antialiased;
-	-webkit-user-select: none;
+/*	-webkit-user-select: none;*/
 	-moz-user-select: none;
 	min-width: 800px;
 	font-family: helvetica, arial, serif;
@@ -390,6 +390,15 @@ a.button.active:hover {
 	z-index: 50;
 	background: url("/images/embed/bg_checker.gif") 0 0 repeat;
 	}
+.fullscreen #stage {
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 10000;
+	position: absolute;
+	}
+
 #canvas {
 	max-width: 100%;
 	}
@@ -555,6 +564,7 @@ div.subgroup {
 .save,
 #menu .code_tab,
 #menu .save,
+#fullscreen,
 #reset {
 	display: none;
 	}
@@ -562,6 +572,7 @@ div.subgroup {
 .ready #menu .code_tab,
 .ready #menu .save,
 .ready .save,
+.ready #fullscreen,
 .ready #reset {
 	display: block;
 	}

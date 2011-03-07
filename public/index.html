@@ -5,8 +5,8 @@
 
 <meta charset="utf-8">
 
-<link href="/assets/fractal_lab-datauri.css?20110306a" media="screen" rel="stylesheet" type="text/css" />
-<script src="/assets/fractal_lab.js?20110306a" type="text/javascript"></script>
+<link href="/assets/fractal_lab-datauri.css?20110307" media="screen" rel="stylesheet" type="text/css" />
+<script src="/assets/fractal_lab.js?20110307" type="text/javascript"></script>
 <link rel="icon" href="/favicon.ico" type="image/png" />
 
 <script type="text/javascript" charset="utf-8">
@@ -42,7 +42,7 @@ $(function () {
 			<a id="help_button" class="button">Help</a>
 			<a id="library_button" class="button">Fractal library</a>
 			<a id="save_fractal" class="button save">Save fractal</a>
-			<a id="fullscreen" class="button">Fullscreen</a>
+			<a id="fullscreen" class="button" title="Esc or f key to toggle fullscreen">Fullscreen</a>
 		</div>
 	</div>
 	
@@ -53,7 +53,7 @@ $(function () {
 			<a class="tab code_tab" data-for="vertex_code_panel">Vertex</a>
 			<a class="tab code_tab" data-for="fragment_code_panel">Fragment</a>
 			<a class="tab code_tab" data-for="log_panel" id="log_tab">Log</a>
-			<a class="tab button_tab save" id="save_image">Save image</a>
+			<a class="tab button_tab save" id="save_image" title="i key to save image">Save image</a>
 			<a class="tab button_tab enabled" id="compile">Render</a>
 		</div>
 		
@@ -82,6 +82,9 @@ $(function () {
 					<li><strong>e</strong> - move up</li>
 					<li><strong>z</strong> - decrease speed</li>
 					<li><strong>x</strong> - increase speed</li>
+					<li><strong>f or Esc</strong> - toggle fullscreen mode</li>
+					<li><strong>p</strong> - toggle preview mode</li>
+					<li><strong>i</strong> - save image</li>
 				</ul>
 
 				<p>
@@ -143,7 +146,7 @@ $(function () {
 						</select>
 					</label>
 					
-					<label for="scale_size"><input type="checkbox" value="1" id="scale_size" checked> Preview mode</label>
+					<label for="scale_size" title="p to toggle preview"><input type="checkbox" value="1" id="scale_size" checked> Preview mode</label>
 				</div>
 
 			</div>
@@ -212,11 +215,8 @@ $(function () {
 		<h2>WebGL not supported by your browser.</h2>
 		<p>Unfortunately it seems that your browser doesn't yet support WebGL required for Fractal Lab.</p>
 		<p>However, WebGL is currently officially supported and enabled by default on the very latest <a href="http://www.google.com/chrome">Google Chrome</a> and <a href="www.mozilla.com/firefox/beta/">Firefox 4 beta</a> browsers. You can also <a href="http://www.webkit.org/blog/603/webgl-now-available-in-webkit-nightlies/">enable it</a> on <a href="http://nightly.webkit.org/">WebKit nightly</a> builds too.</p>
-		<p><strong>Watch the video below then come back using one of these browsers to start exploring!</strong></p>
-		
+		<p><strong>Watch the video below then come back using one of these browsers to start exploring!</strong></p></div>
 		<iframe src="http://player.vimeo.com/video/20687741?title=0&amp;byline=0&amp;portrait=0&amp;color=fc575e" width="580" height="464" frameborder="0"></iframe>
-		
-		</div>
 	</div>
 </div>
 
