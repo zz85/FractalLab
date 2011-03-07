@@ -1,5 +1,6 @@
 /*jslint nomen: false*/
 /*global window, jQuery, document, $, console, FractalLab, IndexedLocalStorage, prompt, alert, confirm, _, PresetManager, Image, localStorage*/
+var LIBRARY_VERSION = 2;
 
 var fractal_library = function (fractal_lab) {
 	var fractal_index,
@@ -15,7 +16,12 @@ var fractal_library = function (fractal_lab) {
 	
 	// Load presets if we haven't yet used Fractal Lab
 	function checkPresets() {
-		if (!localStorage.getItem("fractal_lab_initialised")) {
+		if (localStorage.getItem("fractal_lab_initialised") === 'true') {
+			localStorage.setItem("fractal_lab_initialised", 1);
+		}
+		
+		if (parseInt(localStorage.getItem("fractal_lab_initialised") * 1) < LIBRARY_VERSION) {
+			console.log("load presets library version", LIBRARY_VERSION);
 			loadPresets("javascripts/presets.js");
 		} else {
 			listShaders();
@@ -71,7 +77,7 @@ var fractal_library = function (fractal_lab) {
 			next = function () {
 				if (ix >= presets.length) {
 					// No more presets to check, so load the listing now
-					localStorage.setItem("fractal_lab_initialised", true);
+					localStorage.setItem("fractal_lab_initialised", LIBRARY_VERSION);
 					listShaders();
 					return;
 				}

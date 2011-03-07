@@ -3,6 +3,7 @@ Fractal Lab Change Log
 
 7 March 2011:
 * Added fullscreen mode and keyboard shortcuts for other commands
+* Added preset library numbering scheme so that new presets can be added and will automatically get imported when available
 
 
 6 March 2011:
