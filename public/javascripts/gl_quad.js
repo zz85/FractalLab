@@ -174,27 +174,7 @@ GLQuad.prototype = {
 	},
 	
 	
-	loadTexture: function (path) {
-		var texture = this.gl.createTexture(),
-			image = new Image(),
-			gl = this.gl,
-			t2d = this.gl.TEXTURE_2D;
-
-		image.src = path;
-		image.onload = function () {
-			gl.enable(t2d);
-			gl.bindTexture(t2d, texture);
-			gl.texImage2D(t2d, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-			gl.texParameteri(t2d, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texParameteri(t2d, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-			gl.texParameteri(t2d, gl.TEXTURE_WRAP_S, gl.REPEAT);
-			gl.texParameteri(t2d, gl.TEXTURE_WRAP_T, gl.REPEAT);
-			gl.generateMipmap(t2d);
-			gl.bindTexture(t2d, null);
-		};
-
-		return texture;
-	},
+	
 	
 	
 	createProgram: function (vertex_src, fragment_src) {
@@ -244,6 +224,7 @@ GLQuad.prototype = {
 			this.glProgram = program;
 		}
 		
+		this.loadTextures();
 		this.options.vertex = vertex_src;
 		this.options.fragment = fragment_src;
 		this.resize(this.options.width, this.options.height);
@@ -265,7 +246,7 @@ GLQuad.prototype = {
 			opts;
 
 		for (i = 0; i < l; i += 1) {
-			m = lines[i].match(new RegExp("^uniform (float|int|int2|int3|int4|vec2|vec3|vec4|bool|mat2|mat3|mat4)\\s*([\\w]+)[^\\{]*(\\{[^\\}]+\\})?"));
+			m = lines[i].match(new RegExp("^uniform (float|int|int2|int3|int4|vec2|vec3|vec4|bool|mat2|mat3|mat4|sampler2D)\\s*([\\w]+)[^\\{]*(\\{[^\\}]+\\})?"));
 			
 			if (m) {
 				// Matched a uniform input
@@ -369,9 +350,47 @@ GLQuad.prototype = {
 	},
 	
 	
+	loadTextures: function () {
+		this.textures = {};
+		
+		for (prop in this.parameters) {
+			if (this.parameters.hasOwnProperty(prop) && this.uniforms[prop]) {
+				if (this.uniforms[prop].type === 'sampler2D') {
+					this.textures[prop] = this.loadTexture(this.parameters[prop]);
+				}
+			}
+		}
+	},
+	
+	
+	loadTexture: function (path) {
+		var gl = this.gl,
+			tex_ref = gl.createTexture(),
+			t2d = gl.TEXTURE_2D,
+			image = new Image();
+		
+		image.onload = function () {
+			gl.enable(t2d);
+			gl.bindTexture(t2d, tex_ref);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+			gl.texImage2D(t2d, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+			gl.texParameteri(t2d, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(t2d, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+			// gl.texParameteri(t2d, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+			gl.texParameteri(t2d, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(t2d, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			// gl.generateMipmap(t2d);
+			gl.bindTexture(t2d, null);
+		};
+		
+		image.src = path;
+		
+		return tex_ref;
+	},
+	
+	
 	sendUniforms: function () {
-		var location, prop,
-			gl = this.gl;
+		var prop;
 		
 		// Set values to program variables
 		for (prop in this.parameters) {
@@ -494,6 +513,7 @@ GLQuad.prototype = {
 			loc,
 			vertexPositionLocation,
 			textureLocation,
+			texID = 0,
 			gl = this.gl;
 
 		if (!this.glProgram) {
@@ -510,11 +530,20 @@ GLQuad.prototype = {
 		this.sendUniforms();
 
 		// Bind textures
-		if (this.texture) {
-			textureLocation = gl.getUniformLocation(this.glProgram, 'texture');
-			gl.uniform1i(textureLocation, 0);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		// textureLocation = gl.getUniformLocation(this.glProgram, 'texture');
+		// gl.uniform1i(textureLocation, 0);
+		// gl.activeTexture(gl.TEXTURE0);
+		// gl.bindTexture(gl.TEXTURE_2D, this.textures['texture']);
+		
+		for (tex in this.textures) {
+			if (this.textures.hasOwnProperty(tex)) {
+				console.log("bind texture", tex, this.textures[tex], texID)
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, this.textures[tex]);
+				textureLocation = gl.getUniformLocation(this.glProgram, tex);
+				gl.uniform1i(textureLocation, texID);
+				texID += 1;
+			}
 		}
 
 		// Render geometry

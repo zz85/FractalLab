@@ -21,7 +21,7 @@ var fractal_library = function (fractal_lab) {
 		}
 		
 		if (parseInt(localStorage.getItem("fractal_lab_initialised") * 1) < LIBRARY_VERSION) {
-			console.log("load presets library version", LIBRARY_VERSION);
+			// console.log("load presets library version", LIBRARY_VERSION);
 			loadPresets("javascripts/presets.js");
 		} else {
 			listShaders();

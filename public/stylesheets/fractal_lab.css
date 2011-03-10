@@ -664,7 +664,26 @@ div.subgroup {
 	border-color: #FFF;
 	}
 
-
+/* Image well */
+.image_source {
+	width: 90%;
+	border: none;
+	background-color: #222222;
+	color: #999;
+	border: 1px solid #000;
+	padding: 2px;
+	}
+.image_source:focus {
+	outline: none;
+	border-color: #666;
+	}
+.image_preview {
+	width: 90%;
+	height: auto;
+	background: url("/images/embed/bg_checker.gif") 0 0 repeat;
+	padding: 2px;
+	border: 1px solid #000;
+	}
 
 
 

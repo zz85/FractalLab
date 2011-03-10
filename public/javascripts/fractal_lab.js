@@ -450,7 +450,7 @@ FractalLab.prototype = {
 		var slider,
 			name = options.name.split("_"),
 			self = this,
-			control, label, input, h3, i, option, color;
+			control, label, input, h3, i, option, color, value;
 		
 		options.decimal_places = 4;
 		options.control = options.control || "range";
@@ -529,6 +529,33 @@ FractalLab.prototype = {
 			if (this.gl_quad.parameters[options.name] !== false && typeof(this.gl_quad.parameters[options.name]) !== 'undefined') {
 				control.attr("checked", true);
 			}
+			
+		} else if (options.control === 'sampler2D') {
+			// Image source
+			value = options.value || options['default'];
+			
+			if (typeof(this.gl_quad.parameters[options.name]) !== 'undefined') {
+				value = this.gl_quad.parameters[options.name];
+			}
+			
+			control = $("<input>")
+							.attr({ type: "text", 
+									id: options.name, 
+									value: value})
+							.addClass("image_source");
+			
+			container
+				.append($("<label>")
+					.attr("for", options.name)
+					.text(options.label))
+				.append(control)
+				.append($("<a>")
+					.attr({href: control.val(), target: '_blank'})
+					.append($("<img>")
+						.attr({src: control.val(), title: "Preview image in a new window"})
+						.addClass("image_preview"))
+					);
+			
 		}
 		
 		if (control) {
@@ -585,7 +612,14 @@ FractalLab.prototype = {
 					} else {
 						this.gl_quad.parameters[name[0]] = false;
 					}
-					
+				
+				} else if (options.control === 'sampler2D') {
+					// Image input
+					$(event.target).next().attr("href", event.target.value);
+					$("img", $(event.target).next()).attr("src", event.target.value);
+					this.gl_quad.parameters[name[0]] = event.target.value;
+					$("#compile").addClass("enabled");
+				
 				} else {
 					this.gl_quad.parameters[name[0]] = event.target.val;
 				}
@@ -727,21 +761,23 @@ FractalLab.prototype = {
 			time,
 			step_factor = this.moveMultiplier;
 		this.tick += 1;
+		dir = 1;
 		
 		if (this.options.mode === '2d') {
 			step_factor *= 5 * this.camera.z;
+			dir = -1;
 		}
 		
 		// Move forward/back
 		if (this.keystates[38] || this.keystates[87] || this.impulse.forward) {
 			// w or up arrow
 			this.changed = true;
-			this.camera.forward(this.camera.step() * step_factor);
+			this.camera.forward(this.camera.step() * step_factor * dir);
 			
 		} else if (this.keystates[40] || this.keystates[83] || this.impulse.backward) {
 			// s or down arrow
 			this.changed = true;
-			this.camera.back(this.camera.step() * step_factor);		
+			this.camera.back(this.camera.step() * step_factor * dir);		
 		}
 		
 		// Move up or down
@@ -961,10 +997,17 @@ FractalLab.prototype = {
 	},
 	
 	
+	// Main loop
 	main: function () {
-		var self = this;
+		// requestAnimFrame(this.main);
+		// 
+		// if (this.fps) {
+		// 	this.fps.capture();
+		// }
+		// 
+		// this.keyListener();
 		
-		// Main loop
+		var self = this;
 		window.clearInterval(this.key_listener_id);
 		this.key_listener_id = window.setInterval(function () {
 			if (self.fps) {

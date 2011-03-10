@@ -16,6 +16,7 @@ $(function () {
 		$("#container").show();
 		application();
 	} else {
+		$("#not_supported .content").append('<iframe src="http://player.vimeo.com/video/20687741?title=0&amp;byline=0&amp;portrait=0&amp;color=fc575e" width="580" height="464" frameborder="0"></iframe>');
 		$("#not_supported").show();
 	}
 	
@@ -201,7 +202,7 @@ $(function () {
 	</div>
 	
 	<div id="footer">
-		<span>v0.2 beta | <a href="mailto:&#116;&#111;&#109;&#64;&#115;&#117;&#98;&#98;&#108;&#117;&#101;&#46;c&#111;&#109;">Send feedback</a></span>
+		<span>v0.3 beta | <a href="mailto:&#116;&#111;&#109;&#64;&#115;&#117;&#98;&#98;&#108;&#117;&#101;&#46;c&#111;&#109;">Send feedback</a></span>
 		
 		<a href="http://www.subblue.com/">&copy; 2011 subblue.com</a>
 	</div>
@@ -215,8 +216,8 @@ $(function () {
 		<h2>WebGL not supported by your browser.</h2>
 		<p>Unfortunately it seems that your browser doesn't yet support WebGL required for Fractal Lab.</p>
 		<p>However, WebGL is currently officially supported and enabled by default on the very latest <a href="http://www.google.com/chrome">Google Chrome</a> and <a href="www.mozilla.com/firefox/beta/">Firefox 4 beta</a> browsers. You can also <a href="http://www.webkit.org/blog/603/webgl-now-available-in-webkit-nightlies/">enable it</a> on <a href="http://nightly.webkit.org/">WebKit nightly</a> builds too.</p>
-		<p><strong>Watch the video below then come back using one of these browsers to start exploring!</strong></p></div>
-		<iframe src="http://player.vimeo.com/video/20687741?title=0&amp;byline=0&amp;portrait=0&amp;color=fc575e" width="580" height="464" frameborder="0"></iframe>
+		<p><strong>Watch the video below then come back using one of these browsers to start exploring!</strong></p>
+		
 	</div>
 </div>
 
