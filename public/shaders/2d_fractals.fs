@@ -57,7 +57,7 @@ uniform float orbitTrapScale;       // {"label":"Image scale", "min": 0.1, "max"
 uniform float orbitTrapEdgeDetail;  // {"label":"Edge detail", "min": 0, "max": 1, "step": 0.001, "default":0.5, "group":"Image"}
 uniform float orbitTrapRotation;    // {"label":"Rotation", "min": -360, "max": 360, "step": 0.1, "default":0, "group":"Image"}
 uniform float orbitTrapSpin;        // {"label":"Spin", "min": -360, "max": 360, "step": 0.1, "default":0, "group":"Image"}
-uniform sampler2D texture;          // {"label":"Mapping image URL", "default":"/images/flower2.png", "group":"Image"}
+uniform sampler2D texture;          // {"label":"Mapping image URL", "default":"/images/flower.png", "group":"Image"}
 
 
 uniform float rotation;             // {"label":"Rotation",         "min":-180, "max":180,  "step":0.5,     "default":0,    "group":"Camera", "group_label":"Camera parameters"}
