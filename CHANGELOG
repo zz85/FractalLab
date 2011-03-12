@@ -1,8 +1,23 @@
 Fractal Lab Change Log
 ======================
 
+12 March 2011:
+* Fixed the preset loading to stop duplicates
+* Added auto-preview mode
+
+
+9 March 2011:
+* Some refactoring of the 2D shader and added the 'Duck' formula as described:
+http://www.algorithmic-worlds.net/blog/blog.php?Post=20110227
+
+
+8 March 2011:
+* Added orbit trap mode for 2D fractals to map images into fractal space!
+
+
 7 March 2011:
 * Added fullscreen mode and keyboard shortcuts for other commands
+* Added preset library numbering scheme so that new presets can be added and will automatically get imported when available
 
 
 6 March 2011:

@@ -1,11 +1,13 @@
 /*jslint nomen: false*/
 /*global window, jQuery, document, $, console, FractalLab, IndexedLocalStorage, prompt, alert, confirm, _, PresetManager, Image, localStorage*/
+var LIBRARY_VERSION = 4;
 
 var fractal_library = function (fractal_lab) {
 	var fractal_index,
 		shader_index = [],
 		current_title = '',
 		self = this,
+		presets_to_install = [],
 	
 		// Initialise preset manager
 		preset_manager = new PresetManager(function (tx, results) {
@@ -15,8 +17,13 @@ var fractal_library = function (fractal_lab) {
 	
 	// Load presets if we haven't yet used Fractal Lab
 	function checkPresets() {
-		if (!localStorage.getItem("fractal_lab_initialised")) {
-			loadPresets("javascripts/presets.js");
+		if (localStorage.getItem("fractal_lab_initialised") === 'true') {
+			localStorage.setItem("fractal_lab_initialised", 1);
+		}
+		
+		if (parseInt(localStorage.getItem("fractal_lab_initialised") * 1) < LIBRARY_VERSION) {
+			console.log("load presets library version", LIBRARY_VERSION);
+			loadPresets("javascripts/presets.js?" + Date.now());
 		} else {
 			listShaders();
 		}
@@ -31,9 +38,11 @@ var fractal_library = function (fractal_lab) {
 			success: function (data, textStatus, jqXHR) {
 				
 				// Add the presets
-				loadShaders([{path: '3d_fractals.vs', type: 'vertex'}, {path: '3d_fractals.fs', type: 'fragment'}], presets.presets3d);
-		    	loadShaders([{path: '2d_fractals.vs', type: 'vertex'}, {path: '2d_fractals.fs', type: 'fragment'}], presets.presets2d);
-				
+				presets_to_install.push({shaders: [{path: '3d_fractals.vs', type: 'vertex'}, {path: '3d_fractals.fs', type: 'fragment'}],
+										params: presets.presets3d});
+				presets_to_install.push({shaders: [{path: '2d_fractals.vs', type: 'vertex'}, {path: '2d_fractals.fs', type: 'fragment'}],
+										params: presets.presets2d});
+		    	loadShaders();
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
 				console.log(textStatus, errorThrown);
@@ -43,11 +52,12 @@ var fractal_library = function (fractal_lab) {
 	
 	
 	// Load shaders required by the presets
-	function loadShaders(shaders, presets) {
+	function loadShaders() {
 		var loaded = 0,
-			sources = {};
+			sources = {},
+			install = presets_to_install.pop();
 		
-		$.each(shaders, function (i, shader) {
+		$.each(install.shaders, function (i, shader) {
 			$.ajax({
 				url: "shaders/" + shader.path, 
 				dataType: 'text',
@@ -56,8 +66,8 @@ var fractal_library = function (fractal_lab) {
 					loaded += 1;
 					sources[shader.type] = data;
 					
-					if (loaded === shaders.length) {
-						installPresets(sources, presets);
+					if (loaded === install.shaders.length) {
+						installPresets(sources, install.params);
 					}
 				}
 			});
@@ -67,16 +77,22 @@ var fractal_library = function (fractal_lab) {
 	
 	// Install presets if not already present
 	function installPresets(sources, presets) {
-		var ix = 0,
+		var idx = 0,
 			next = function () {
-				if (ix >= presets.length) {
+				if (idx >= presets.length) {
 					// No more presets to check, so load the listing now
-					localStorage.setItem("fractal_lab_initialised", true);
-					listShaders();
+					localStorage.setItem("fractal_lab_initialised", LIBRARY_VERSION);
+					
+					if (presets_to_install.length === 0) {
+						listShaders();
+					} else {
+						loadShaders();
+					}
+					
 					return;
 				}
 				
-				var preset = presets[ix],
+				var preset = presets[idx],
 					params;
 				
 				preset_manager.find_by_title(preset.title, function (rs) {
@@ -96,19 +112,19 @@ var fractal_library = function (fractal_lab) {
 								params: JSON.stringify(params)
 							},
 							function () {
-								_.defer(next);
+								idx += 1;
+								next();
 							}
 						);
 					} else {
-						ix += 1;
-						_.defer(next);
+						idx += 1;
+						next();
 					}
 				});
-			
-				ix += 1;
 			};
-		
-		_.defer(next);
+			
+		// console.log("load presets", presets.length);
+		next();
 	}
 	
 	

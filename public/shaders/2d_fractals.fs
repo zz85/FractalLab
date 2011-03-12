@@ -4,10 +4,12 @@ precision highp float;
 
 /**
  * Fractal Lab's 2D fractal shader
- * Last update: 19 February 2011
+ * Last update: 10 March 2011
  *
  * Changelog:
  *      0.1     - Initial release
+ *      0.2     - Added orbit trap option
+ *      0.3     - Added 'Ducks' formula by Samuel Monnier
  *
  * Copyright 2011, Tom Beddard
  * http://www.subblue.com
@@ -20,13 +22,14 @@ precision highp float;
  *
 */
 
+#define dE Mandelbrot             // {"label":"Fractal type", "control":"select", "options":["Mandelbrot", "OrbitTrap", "Ducks"]}
 
 #define maxIterations 50            // {"label":"Iterations", "min":1, "max":400, "step":1, "group_label":"2D parameters"}
 #define antialiasing 0.5            // {"label":"Anti-aliasing", "control":"bool", "default":false, "group_label":"Render quality"}
 
 uniform float scale;                // {"label":"Scale",        "min":-10,  "max":10,   "step":0.1,     "default":2,    "group":"Fractal", "group_label":"Fractal parameters"}
 uniform float power;                // {"label":"Power",        "min":-20,  "max":20,   "step":0.001,     "default":2,    "group":"Fractal"}
-uniform float bailout;              // {"label":"Bailout", "min":0.1, "max":50, "step":1, "default":4, "group":"Fractal"}
+uniform float bailout;              // {"label":"Bailout", "min":0.1, "max":50, "step":0.01, "default":4, "group":"Fractal"}
 uniform int   minIterations;        // {"label":"Min. iterations", "min":1, "max":400, "step":1, "group":"Fractal"}
 
 uniform bool  juliaMode;            // {"label":"Enable", "default":false,    "group":"Fractal", "group_label":"Julia mode"}
@@ -37,23 +40,35 @@ uniform int   bailoutStyle;         // {"label":"Colour style", "min":0,  "max":
 uniform float colorScale;           // {"label":"Colour scale",  "min":0,  "max":10,   "step":0.01,     "default":1,    "group":"Colour"}
 uniform float colorCycle;           // {"label":"Colour cycle", "min":0,  "max":10,   "step":0.01,     "default":1,    "group":"Colour"}
 uniform float colorCycleOffset;     // {"label":"Colour cycle offset", "min":-10,  "max":10,   "step":0.01,     "default":0,    "group":"Colour"}
-uniform bool  colorCycleMirror;     // {"label":"Colour mirror", "default":false,    "group":"Colour"}
+uniform bool  colorCycleMirror;     // {"label":"Colour mirror", "default":true,    "group":"Colour"}
 uniform bool  hsv;                  // {"label":"Rainbow", "default":false,    "group":"Colour"}
-uniform float iterationColorBlend;  // {"label":"Iteration blend", "min":0,  "max":50,   "step":0.01,     "default":0,    "group":"Colour"}
+uniform float iterationColorBlend;  // {"label":"Iteration blend", "min":0,  "max":10,   "step":0.01,     "default":0,    "group":"Colour"}
 
 uniform int   colorIterations;      // {"label":"Colour iterations", "default": 4, "min":0, "max": 30, "step":1, "group":"Colour", "group_label":"Base colour"}
 uniform vec3  color1;               // {"label":"Colour 1",  "default":[1.0, 1.0, 1.0], "group":"Colour", "control":"color"}
 uniform vec3  color2;               // {"label":"Colour 2",  "default":[0, 0.53, 0.8], "group":"Colour", "control":"color"}
-uniform vec3  color3;               // {"label":"Inside colour",  "default":[0.0, 0.0, 0.0], "group":"Colour", "control":"color"}
+uniform vec3  color3;               // {"label":"Inside/background colour",  "default":[0.0, 0.0, 0.0], "group":"Colour", "control":"color"}
+uniform bool  transparent;          // {"label":"Transparent background", "default":false, "group":"Colour"}
 uniform float gamma;                // {"label":"Gamma correction", "default":1, "min":0.1, "max":2, "step":0.01, "group":"Colour"}
 
-uniform float rotation;             // {"label":"Rotation",         "min":-180, "max":180,  "step":0.5,     "default":0,    "group":"Camera", "group_label":"Camera parameters"}
-uniform vec3  cameraPosition;       // {"label":["Camera x", "Camera y", "Camera z"],   "default":[-0.5, 0, 2.5], "control":"camera", "group":"Camera"}
+uniform bool  orbitTrap;            // {"label":"Orbit trap", "default":false, "group":"Image", "group_label":"Map images into fractal space"}
+uniform vec2  orbitTrapOffset;      // {"label":["Orbit offset x", "Orbit trap y"], "min":-3, "max":3, "default":[0, 0], "step":0.001, "group":"Image"}
+uniform float orbitTrapScale;       // {"label":"Image scale", "min": 0.1, "max": 10, "step": 0.001, "default":1, "group":"Image"}
+uniform float orbitTrapEdgeDetail;  // {"label":"Edge detail", "min": 0, "max": 1, "step": 0.001, "default":0.5, "group":"Image"}
+uniform float orbitTrapRotation;    // {"label":"Rotation", "min": -360, "max": 360, "step": 0.1, "default":0, "group":"Image"}
+uniform float orbitTrapSpin;        // {"label":"Spin", "min": -360, "max": 360, "step": 0.1, "default":0, "group":"Image"}
+uniform sampler2D texture;          // {"label":"Mapping image URL", "default":"/images/flower.png", "group":"Image"}
 
+
+uniform float rotation;             // {"label":"Rotation",         "min":-180, "max":180,  "step":0.5,     "default":0,    "group":"Camera", "group_label":"Camera parameters"}
+uniform vec3  cameraPosition;       // {"label":["Camera x", "Camera y", "Camera z"],   "default":[-0.5, 0, 2.5], "min":0, "max": 200, "step":0.0000001, "control":"camera", "group":"Camera"}
 uniform vec2  size;                 // {"default":[400, 300]}
+
 
 float aspectRatio = size.x / size.y;
 mat2  rotationMatrix;
+mat2  orbitRotation;
+mat2  orbitSpin;
 
 
 #define BAILOUT 4.0
@@ -182,6 +197,14 @@ vec3 hsv2rgb(vec3 hsv)
     return color;
 }
 
+
+
+
+// ============================================================================================ //
+
+
+#ifdef dEMandelbrot
+
 float _bailout = exp(bailout);
 float log2Bailout = log(2.0 * log(_bailout));
 float logPower = log(abs(power));
@@ -209,7 +232,7 @@ bool bailoutLimit(vec2 z) {
 }
 
 
-vec3 colorMapping(float n, vec2 z) {
+vec4 colorMapping(float n, vec2 z) {
     vec3 color = color3,
         c1 = color1,
         c2 = color2;
@@ -256,10 +279,8 @@ vec3 colorMapping(float n, vec2 z) {
         
         if (colorMode == 2 && n == 0.0) v = 1.0;
         
-        if (colorScale > 1.0) v = pow(v, colorScale);
-        
-        if (colorCycle > 1.0) v *= colorCycle;
-        
+        v = pow(v, colorScale);
+        v *= colorCycle;
         v += colorCycleOffset;
         
         if (colorCycleMirror) {
@@ -280,16 +301,13 @@ vec3 colorMapping(float n, vec2 z) {
         }
     }
     
-    return color;
+    return vec4(color, 1.0);
 }
 
 
-vec4 render(vec2 pixel) {
-    vec3  color = color3;
+vec4 Mandelbrot(vec2 z) {
+    vec4  color = vec4(color3, 1.0);
     float n = 0.0;
-    vec2  z = ((pixel - (size * 0.5)) / size) * vec2(aspectRatio, 1.0) * cameraPosition.z + cameraPosition.xy;
-    z *= rotationMatrix;
-    
     vec2  c = juliaMode ? offset : z;
     
     for (int i = 0; i < maxIterations; i++) {
@@ -304,14 +322,121 @@ vec4 render(vec2 pixel) {
     
     if (iterationColorBlend > 0.0) {
         float blend = clamp(1.0 - (n / float(maxIterations)) * iterationColorBlend, 0.0, 1.0);
-        color = mix(color3, color, blend);
+        color.rgb = mix(color3, color.rgb, blend);
     }
-     
-    return vec4(color.rgb, 1.0);
+    
+    return color;
+}
+
+#endif
+
+
+// ============================================================================================ //
+
+
+#ifdef dEOrbitTrap
+
+vec4 orbitMapping(vec4 c, vec2 w)
+{
+    vec4 color = vec4(0);
+    vec2 sp = 0.5 + (w / orbitTrapScale * orbitRotation - orbitTrapOffset) * orbitSpin;
+    
+	vec4 s = texture2D(texture, sp);
+	if (s.a > 0.0) c = mix(c, s, s.a);
+    
+    return c;
 }
 
 
+vec4 OrbitTrap(vec2 z) {
+    vec4  color = vec4(color3, 0.0);
+    float n = 0.0;
+    vec2  c = juliaMode ? offset : z;
+    
+    for (int i = 0; i < maxIterations; i++) {
+        n += 1.0;
+        
+        z = complexPower(z, power) + c;
+        
+        if (n >= float(minIterations)) {
+            color = orbitMapping(color, z);
+            if (color.a >= orbitTrapEdgeDetail) break;
+        }
+    }
+    
+    if (iterationColorBlend > 0.0) {
+        float blend = clamp(1.0 - (n / float(maxIterations)) * iterationColorBlend, 0.0, 1.0);
+        color.rgb = mix(color3, color.rgb, blend);
+    }
+    
+    if (!transparent) color.a = 1.0;
+    
+    return color;
+}
 
+#endif
+
+
+// ============================================================================================ //
+
+
+#ifdef dEDucks
+// Ducks and butterflies
+// http://www.algorithmic-worlds.net/blog/blog.php?Post=20110227
+
+vec4 Ducks(vec2 z) {
+    vec4  color = vec4(color3, 1.0);
+    float n = 0.0;
+    vec2  c = juliaMode ? offset : z;
+    float d = 0.0;
+    float v;
+    
+    for (int i = 0; i < maxIterations; i++) {
+        n += 1.0;
+        z = complexLog(vec2(z.x, abs(z.y))) + c;
+        
+        if (n >= float(minIterations)) {
+            d += dot(z, z);
+        }
+    }
+    
+    v = sqrt(d / n);
+    v = pow(v, colorScale);
+    v *= colorCycle;
+    v += colorCycleOffset;
+    
+    if (colorCycleMirror) {
+        bool even = mod(v, 2.0) < 1.0 ? true : false;
+        if (even) {
+            v = 1.0 - mod(v, 1.0);
+        } else {
+            v = mod(v, 1.0);
+        }
+    } else {
+        v = 1.0 - mod(v, 1.0);
+    }
+    
+    if (hsv) {
+        color.rgb = hsv2rgb(mix(rgb2hsv(color1.rgb), rgb2hsv(color2.rgb), clamp(v, 0.0, 1.0)));
+    } else {
+       color.rgb = mix(color1.rgb, color2.rgb, clamp(v, 0.0, 1.0));
+    }
+    
+    return color;
+}
+
+#endif
+
+
+// ============================================================================================ //
+
+
+vec4 render(vec2 pixel) {
+    vec2  z = ((pixel - (size * 0.5)) / size) * vec2(aspectRatio, 1.0) * cameraPosition.z + cameraPosition.xy;
+    z *= rotationMatrix;
+    
+    return dE(z);
+}
 
 
 // The main loop
@@ -323,6 +448,18 @@ void main()
     float rc = cos(radians(rotation));
     float rs = sin(radians(rotation));
     rotationMatrix = mat2(rc, rs, -rs, rc);
+    
+#ifdef dEOrbitTrap
+    
+    float otrc = cos(radians(orbitTrapRotation));
+    float otrs = sin(radians(orbitTrapRotation));
+    orbitRotation = mat2(otrc, otrs, -otrs, otrc);
+
+    float otsc = cos(radians(orbitTrapSpin));
+    float otss = sin(radians(orbitTrapSpin));
+    orbitSpin = mat2(otsc, otss, -otss, otsc);
+    
+#endif
     
     
 #ifdef antialiasing
@@ -336,6 +473,9 @@ void main()
 #else
     color = render(gl_FragCoord.xy);
 #endif
-
+    
+    if (color.a < 0.00392) discard; // Less than 1/255
+    
     gl_FragColor = vec4(pow(color.rgb, vec3(1.0 / gamma)), 1.0);
+    
 }

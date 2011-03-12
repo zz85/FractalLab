@@ -40,6 +40,7 @@ function FractalLab(ui, opts) {
 	this.gl_quad = this.quad.data("GLQuad");
 	this.ui = $(ui);
 	this.tick = 0;
+	this.preview_mode = true;
 	this.keymove = false;
 	this.drawing = false;
 	this.changed = false;
@@ -184,16 +185,17 @@ FractalLab.prototype = {
 		});
 		
 		// Other UI controls
-		$("#scale_size").change(function (event) {
-			self.resize(event);
-		});
+		// $("#scale_size").change(function (event) {
+		// 	self.resize(event);
+		// });
 		
 		// View mode
 		$("#mode").change(function () {
 			self.mode = this.value;
-			if (self.mode !== 'cont') {
-				self.framerate.text('');
-			}
+			self.changed = true;
+			// if (self.mode !== 'cont') {
+			// 	self.framerate.text('');
+			// }
 			$(this).blur();
 			self.mouseUp();
 		});
@@ -208,21 +210,25 @@ FractalLab.prototype = {
 	
 	
 	// Resize canvas to fit the container element
-	resize: function (event) {
+	resize: function (event, resolution) {
 		var c = $(this.gl_quad.canvas),
 			p = c.parent(),
 			w = p.width(), 
 			h = p.height(),
 			a = w / h;
 		
-		if ($("#scale_size")[0].checked) {
+		// console.log("resize", this.mode);
+		
+		if (!resolution || resolution === 'preview') {
 			// Preview res
 			w = this.options.preview_width;
 			h = Math.floor(w / a);
 			c.addClass("fit");
+			this.preview_mode = true;
 		} else {
 			// Full resolution
 			c.removeClass("fit");
+			this.preview_mode = false;
 		}
 		
 		if (this.gl_quad.parameters.size) {
@@ -450,7 +456,7 @@ FractalLab.prototype = {
 		var slider,
 			name = options.name.split("_"),
 			self = this,
-			control, label, input, h3, i, option, color;
+			control, label, input, h3, i, option, color, value;
 		
 		options.decimal_places = 4;
 		options.control = options.control || "range";
@@ -529,6 +535,33 @@ FractalLab.prototype = {
 			if (this.gl_quad.parameters[options.name] !== false && typeof(this.gl_quad.parameters[options.name]) !== 'undefined') {
 				control.attr("checked", true);
 			}
+			
+		} else if (options.control === 'sampler2D') {
+			// Image source
+			value = options.value || options['default'];
+			
+			if (typeof(this.gl_quad.parameters[options.name]) !== 'undefined') {
+				value = this.gl_quad.parameters[options.name];
+			}
+			
+			control = $("<input>")
+							.attr({ type: "text", 
+									id: options.name, 
+									value: value})
+							.addClass("image_source");
+			
+			container
+				.append($("<label>")
+					.attr("for", options.name)
+					.text(options.label))
+				.append(control)
+				.append($("<a>")
+					.attr({href: control.val(), target: '_blank'})
+					.append($("<img>")
+						.attr({src: control.val(), title: "Preview image in a new window"})
+						.addClass("image_preview"))
+					);
+			
 		}
 		
 		if (control) {
@@ -585,7 +618,14 @@ FractalLab.prototype = {
 					} else {
 						this.gl_quad.parameters[name[0]] = false;
 					}
-					
+				
+				} else if (options.control === 'sampler2D') {
+					// Image input
+					$(event.target).next().attr("href", event.target.value);
+					$("img", $(event.target).next()).attr("src", event.target.value);
+					this.gl_quad.parameters[name[0]] = event.target.value;
+					$("#compile").addClass("enabled");
+				
 				} else {
 					this.gl_quad.parameters[name[0]] = event.target.val;
 				}
@@ -722,26 +762,29 @@ FractalLab.prototype = {
 	
 	
 	keyListener: function () {
-		var step, fps, 
+		var self = this,
+			step, fps, 
 			now = Date.now(),
 			time,
 			step_factor = this.moveMultiplier;
 		this.tick += 1;
+		dir = 1;
 		
 		if (this.options.mode === '2d') {
 			step_factor *= 5 * this.camera.z;
+			dir = -1;
 		}
 		
 		// Move forward/back
 		if (this.keystates[38] || this.keystates[87] || this.impulse.forward) {
 			// w or up arrow
 			this.changed = true;
-			this.camera.forward(this.camera.step() * step_factor);
+			this.camera.forward(this.camera.step() * step_factor * dir);
 			
 		} else if (this.keystates[40] || this.keystates[83] || this.impulse.backward) {
 			// s or down arrow
 			this.changed = true;
-			this.camera.back(this.camera.step() * step_factor);		
+			this.camera.back(this.camera.step() * step_factor * dir);		
 		}
 		
 		// Move up or down
@@ -808,23 +851,40 @@ FractalLab.prototype = {
 		}
 		
 		// Render changes
-		if (this.changed || this.mode === 'cont') {
+		if (this.changed) {
+			window.clearTimeout(this.update_timeout);
+			
 			if (this.camera) {
 				this.updateCamera();
 			}
-			this.gl_quad.draw();
+			
+			if (this.mode === 'auto') {
+				
+				if (!this.preview_mode) {
+					this.resize(false, 'preview');
+				} else {
+					this.gl_quad.draw();
+				}
+				
+				// Auto render full res after 500 ms
+				this.update_timeout = window.setTimeout(function () {
+					self.resize(false, 'full');
+				}, 500);
+			
+			} else if (this.mode === 'preview' && !this.preview_mode) {
+				this.resize(false, 'preview');
+			
+			} else if (this.mode === 'normal' && this.preview_mode) {
+				this.resize(false, 'normal');
+			
+			} else {
+				this.gl_quad.draw();
+			}
+			
 			time = Date.now() - now;
 			this.changed = false;
 			this.updated = false;
 			this.impulse = {};
-			
-			if (this.framerate && this.tick > 30 && this.mode === 'cont') {
-				// Update framerate every 30 ticks
-				fps = this.fps.display();
-				this.framerate.text("FPS: " + fps + " (" + Math.round((1 / fps) * 10000) / 10 + "ms)");
-				this.tick = 0;
-			}
-			
 		}
 		
 		
@@ -848,7 +908,7 @@ FractalLab.prototype = {
 	mouseMove: function (event) {
 		var dx = event.clientX - this.ox,
 			dy = event.clientY - this.oy,
-			step = 0.5,
+			step = this.keystates.altKey ? 0.1 : 0.5,
 			step_factor,
 			rx, ry, 
 			deg2rad = Math.PI / 180;
@@ -961,10 +1021,17 @@ FractalLab.prototype = {
 	},
 	
 	
+	// Main loop
 	main: function () {
-		var self = this;
+		// requestAnimFrame(this.main);
+		// 
+		// if (this.fps) {
+		// 	this.fps.capture();
+		// }
+		// 
+		// this.keyListener();
 		
-		// Main loop
+		var self = this;
 		window.clearInterval(this.key_listener_id);
 		this.key_listener_id = window.setInterval(function () {
 			if (self.fps) {
