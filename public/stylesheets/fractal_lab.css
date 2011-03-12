@@ -807,3 +807,8 @@ div.subgroup {
 #footer span {
     float: right;
     }
+#footer #donate {
+	float: right;
+	margin: -3px 0 0 10px;
+	
+	}

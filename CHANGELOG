@@ -1,6 +1,11 @@
 Fractal Lab Change Log
 ======================
 
+12 March 2011:
+* Fixed the preset loading to stop duplicates
+* Added auto-preview mode
+
+
 9 March 2011:
 * Some refactoring of the 2D shader and added the 'Duck' formula as described:
 http://www.algorithmic-worlds.net/blog/blog.php?Post=20110227

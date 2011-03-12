@@ -200,19 +200,21 @@ SuperSlider.prototype = {
 		if (event.currentTarget === event.target) {
 			// Clicked track
 			this.ox = this.handle_width / 2;
+			this.x0 = event.offsetX || event.layerX;
 			this.onDrag(event);
 		} else {
 			// Clicked handle
 			this.ox = event.offsetX || event.layerX;
+			this.x0 = event.target.offsetLeft + (event.offsetX || event.layerX);
 		}
-	
+		
 		this.track.get(0).addEventListener("mousemove", this.mouseMove, false);
 		$("body").bind("mouseup", this.mouseUp);
 	},
 
 
 	onDrag: function (event) {
-		var x, v;
+		var x, v, v2, d;
 	
 		if (event.currentTarget === event.target) {
 			// track clicked
@@ -221,15 +223,25 @@ SuperSlider.prototype = {
 			// handle clicked
 			x = event.target.offsetLeft + (event.offsetX || event.layerX);
 		}
-	
+		
+		d = (x - this.x0);
 		x -= this.ox;
 		v = (x / this.track_width) * (this.options.max - this.options.min);
-	
-		if (!event.altKey) {
+		
+		if (event.altKey) {
+			// slow down the movements
+			v2 = ((d) / this.track_width) * (this.options.max - this.options.min);
+			console.log(d, v, v2)
+			v += v2;
+		}
+		
+		
+		if (event.shiftKey) {
 			// Snap to step increments
 			v = Math.floor(v / this.options.step) * this.options.step;
 		}
-	
+		
+		
 		this.updateSlider(this.options.min + v);
 	},
 

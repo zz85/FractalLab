@@ -522,7 +522,6 @@ GLQuad.prototype = {
 		}
 		
 		// console.log("draw");
-		
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 		// Load the program & set parameters
@@ -530,14 +529,8 @@ GLQuad.prototype = {
 		this.sendUniforms();
 
 		// Bind textures
-		// textureLocation = gl.getUniformLocation(this.glProgram, 'texture');
-		// gl.uniform1i(textureLocation, 0);
-		// gl.activeTexture(gl.TEXTURE0);
-		// gl.bindTexture(gl.TEXTURE_2D, this.textures['texture']);
-		
 		for (tex in this.textures) {
 			if (this.textures.hasOwnProperty(tex)) {
-				console.log("bind texture", tex, this.textures[tex], texID)
 				gl.activeTexture(gl.TEXTURE0);
 				gl.bindTexture(gl.TEXTURE_2D, this.textures[tex]);
 				textureLocation = gl.getUniformLocation(this.glProgram, tex);

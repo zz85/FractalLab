@@ -40,6 +40,7 @@ function FractalLab(ui, opts) {
 	this.gl_quad = this.quad.data("GLQuad");
 	this.ui = $(ui);
 	this.tick = 0;
+	this.preview_mode = true;
 	this.keymove = false;
 	this.drawing = false;
 	this.changed = false;
@@ -184,16 +185,17 @@ FractalLab.prototype = {
 		});
 		
 		// Other UI controls
-		$("#scale_size").change(function (event) {
-			self.resize(event);
-		});
+		// $("#scale_size").change(function (event) {
+		// 	self.resize(event);
+		// });
 		
 		// View mode
 		$("#mode").change(function () {
 			self.mode = this.value;
-			if (self.mode !== 'cont') {
-				self.framerate.text('');
-			}
+			self.changed = true;
+			// if (self.mode !== 'cont') {
+			// 	self.framerate.text('');
+			// }
 			$(this).blur();
 			self.mouseUp();
 		});
@@ -208,21 +210,25 @@ FractalLab.prototype = {
 	
 	
 	// Resize canvas to fit the container element
-	resize: function (event) {
+	resize: function (event, resolution) {
 		var c = $(this.gl_quad.canvas),
 			p = c.parent(),
 			w = p.width(), 
 			h = p.height(),
 			a = w / h;
 		
-		if ($("#scale_size")[0].checked) {
+		// console.log("resize", this.mode);
+		
+		if (!resolution || resolution === 'preview') {
 			// Preview res
 			w = this.options.preview_width;
 			h = Math.floor(w / a);
 			c.addClass("fit");
+			this.preview_mode = true;
 		} else {
 			// Full resolution
 			c.removeClass("fit");
+			this.preview_mode = false;
 		}
 		
 		if (this.gl_quad.parameters.size) {
@@ -756,7 +762,8 @@ FractalLab.prototype = {
 	
 	
 	keyListener: function () {
-		var step, fps, 
+		var self = this,
+			step, fps, 
 			now = Date.now(),
 			time,
 			step_factor = this.moveMultiplier;
@@ -844,23 +851,40 @@ FractalLab.prototype = {
 		}
 		
 		// Render changes
-		if (this.changed || this.mode === 'cont') {
+		if (this.changed) {
+			window.clearTimeout(this.update_timeout);
+			
 			if (this.camera) {
 				this.updateCamera();
 			}
-			this.gl_quad.draw();
+			
+			if (this.mode === 'auto') {
+				
+				if (!this.preview_mode) {
+					this.resize(false, 'preview');
+				} else {
+					this.gl_quad.draw();
+				}
+				
+				// Auto render full res after 500 ms
+				this.update_timeout = window.setTimeout(function () {
+					self.resize(false, 'full');
+				}, 500);
+			
+			} else if (this.mode === 'preview' && !this.preview_mode) {
+				this.resize(false, 'preview');
+			
+			} else if (this.mode === 'normal' && this.preview_mode) {
+				this.resize(false, 'normal');
+			
+			} else {
+				this.gl_quad.draw();
+			}
+			
 			time = Date.now() - now;
 			this.changed = false;
 			this.updated = false;
 			this.impulse = {};
-			
-			if (this.framerate && this.tick > 30 && this.mode === 'cont') {
-				// Update framerate every 30 ticks
-				fps = this.fps.display();
-				this.framerate.text("FPS: " + fps + " (" + Math.round((1 / fps) * 10000) / 10 + "ms)");
-				this.tick = 0;
-			}
-			
 		}
 		
 		
@@ -884,7 +908,7 @@ FractalLab.prototype = {
 	mouseMove: function (event) {
 		var dx = event.clientX - this.ox,
 			dy = event.clientY - this.oy,
-			step = 0.5,
+			step = this.keystates.altKey ? 0.1 : 0.5,
 			step_factor,
 			rx, ry, 
 			deg2rad = Math.PI / 180;
