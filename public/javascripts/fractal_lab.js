@@ -42,10 +42,9 @@ function FractalLab(ui, opts) {
 	this.tick = 0;
 	this.preview_mode = true;
 	this.keymove = false;
-	this.drawing = false;
 	this.changed = false;
-	this.updated = false;
-	this.editing = false;
+	this.editing_code = false;
+	this.pause_auto_update = false;
 	this.keystates = {};
 	this.impulse = {};
 }
@@ -122,14 +121,14 @@ FractalLab.prototype = {
 		this.keyEvents();
 		
 		this.mouseDownListener = function (event) {
-			if (!self.editing) {
+			if (!self.editing_code) {
 				$(event.target).addClass("moving");
 				self.mouseDown(event);
 			}
 		};
 	
 		this.mouseOverListener = function (event) {
-			self.keymove = self.editing ? false : true;
+			self.keymove = self.editing_code ? false : true;
 		};
 		
 		this.mouseOutListener = function (event) {
@@ -138,7 +137,7 @@ FractalLab.prototype = {
 		};
 		
 		this.mouseMoveListener = function (event) {
-			if (!self.editing) {
+			if (!self.editing_code) {
 				self.mouseMove(event);
 			}
 		};
@@ -184,20 +183,14 @@ FractalLab.prototype = {
 			return false;
 		});
 		
-		// Other UI controls
-		// $("#scale_size").change(function (event) {
-		// 	self.resize(event);
-		// });
-		
 		// View mode
 		$("#mode").change(function () {
 			self.mode = this.value;
 			self.changed = true;
-			// if (self.mode !== 'cont') {
-			// 	self.framerate.text('');
-			// }
+			self.pause_auto_update = false;
 			$(this).blur();
 			self.mouseUp();
+			self.resize();
 		});
 		
 		this.mode = $("#mode").val();
@@ -206,6 +199,26 @@ FractalLab.prototype = {
 			this.framerate = $(this.options.framerate);
 			this.fps = new FPS(60);
 		}
+	},
+	
+	
+	fullscreen: function (reset) {
+		var canvas = $("#stage").detach();
+
+		if ($("body").hasClass("fullscreen") || reset) {
+			$("body").removeClass("fullscreen");
+			$("#help").after(canvas);
+		} else {	
+			$("body").addClass("fullscreen")
+			$("body").append(canvas);
+		}
+
+		if ($("#library:visible").length > 0) {
+			$("#library_button").trigger("click");
+		}
+		
+		this.resize();
+		this.changed = true;
 	},
 	
 	
@@ -233,6 +246,10 @@ FractalLab.prototype = {
 		
 		if (this.gl_quad.parameters.size) {
 			this.gl_quad.parameters.size = [w, h];
+		}
+		
+		if (this.gl_quad.parameters.outputSize) {
+			this.gl_quad.parameters.outputSize = [p.width(), p.height()];
 		}
 		
 		this.gl_quad.options.width = w;
@@ -686,11 +703,11 @@ FractalLab.prototype = {
 	// Interacting
 	interacting: function (stage) {
 		if (stage) {
-			this.editing = false;
+			this.editing_code = false;
 			this.keyEvents();
 			this.main();
 		} else {
-			this.editing = true;
+			this.editing_code = true;
 			$(document).unbind("keydown keyup");
 			window.clearInterval(this.key_listener_id);
 		}
@@ -820,7 +837,8 @@ FractalLab.prototype = {
 			// f, Esc
 			this.keystates[70] = false;
 			this.keystates[27] = false;
-			$("#fullscreen").trigger("click");
+			this.fullscreen();
+			// $("#fullscreen").trigger("click");
 		}
 		
 		// Save image
@@ -866,11 +884,8 @@ FractalLab.prototype = {
 					this.gl_quad.draw();
 				}
 				
-				// Auto render full res after 500 ms
-				this.update_timeout = window.setTimeout(function () {
-					self.resize(false, 'full');
-				}, 500);
-			
+				this.autoUpdate();
+				
 			} else if (this.mode === 'preview' && !this.preview_mode) {
 				this.resize(false, 'preview');
 			
@@ -883,16 +898,26 @@ FractalLab.prototype = {
 			
 			time = Date.now() - now;
 			this.changed = false;
-			this.updated = false;
 			this.impulse = {};
 		}
-		
 		
 	},
 	
 	
-	autoDraw: function (event) {
-		this.gl_quad.draw();
+	// Auto render full res after 500 ms
+	autoUpdate: function () {
+		var self = this;
+		
+		window.clearTimeout(this.update_timeout);
+		
+		this.update_timeout = window.setTimeout(function () {
+			if (self.pause_auto_update) {
+				self.autoUpdate();
+			} else {
+				self.resize(false, 'full');
+			}
+			
+		}, 500);
 	},
 	
 	
@@ -995,8 +1020,6 @@ FractalLab.prototype = {
 				$("#cameraYaw").data("superslider").value(this.gl_quad.parameters.cameraYaw);
 			}
 		}
-		
-		this.updated = true;
 	},
 	
 	
@@ -1023,14 +1046,6 @@ FractalLab.prototype = {
 	
 	// Main loop
 	main: function () {
-		// requestAnimFrame(this.main);
-		// 
-		// if (this.fps) {
-		// 	this.fps.capture();
-		// }
-		// 
-		// this.keyListener();
-		
 		var self = this;
 		window.clearInterval(this.key_listener_id);
 		this.key_listener_id = window.setInterval(function () {
@@ -1040,7 +1055,7 @@ FractalLab.prototype = {
 			
 			self.keyListener();
 			
-		}, 1000 / this.options.fps);
+		}, Math.round(1000 / this.options.fps));
 	}
 	
 };

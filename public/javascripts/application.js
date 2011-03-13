@@ -14,7 +14,7 @@ var application = function () {
 			$("#params"),
 			{
 				canvas: $("#canvas"),
-				framerate: $("#average_fps"),
+				// framerate: $("#average_fps"),
 				color_picker: color_picker,
 				ready_callback: function () {
 					$("#library").trigger("load_presets");
@@ -38,20 +38,7 @@ var application = function () {
 	// }
 	
 	$("#fullscreen").click(function () {
-		var canvas = $("#stage").detach();
-		
-		if ($("body").hasClass("fullscreen")) {
-			$("#help").after(canvas);
-		} else {
-			$("body").append(canvas);
-		}
-		
-		if ($("#library:visible").length > 0) {
-			$("#library_button").trigger("click");
-		}
-		
-		$("body").toggleClass("fullscreen");
-		fractal_lab.resize();
+		fractal_lab.fullscreen();
 	});
 	
 	
@@ -215,6 +202,13 @@ var application = function () {
 		}
 	});
 	
+	$("body").mousedown(function () {
+		fractal_lab.pause_auto_update = true;
+	});
+	
+	$("body").mouseup(function () {
+		fractal_lab.pause_auto_update = false;
+	});
 	
 	// Initalise the fractal library
 	fractal_library(fractal_lab);

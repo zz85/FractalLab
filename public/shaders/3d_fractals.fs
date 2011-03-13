@@ -87,6 +87,7 @@ uniform float specularity;          // {"label":"Specularity",  "min":0,    "max
 uniform float specularExponent;     // {"label":"Specular exponent", "min":0, "max":50, "step":0.1,     "default":4,    "group":"Shading"}
 
 uniform vec2  size;                 // {"default":[400, 300]}
+uniform vec2  outputSize;           // {"default":[800, 600]}
 uniform float aoIntensity;          // {"label":"AO intensity",     "min":0, "max":1, "step":0.01, "default":0.15,  "group":"Shading", "group_label":"Ambient occlusion"}
 uniform float aoSpread;             // {"label":"AO spread",    "min":0, "max":20, "step":0.01, "default":9,  "group":"Shading"}
 
@@ -96,9 +97,9 @@ uniform mat3  fractalRotation2;     // {"label":["Rotate x", "Rotate y", "Rotate
 uniform bool  depthMap;             // {"label":"Depth map", "default": false, "value":1, "group":"Shading"}
 
 
-float aspectRatio = size.x / size.y;
+float aspectRatio = outputSize.x / outputSize.y;
 float fovfactor = 1.0 / sqrt(1.0 + cameraFocalLength * cameraFocalLength);
-float pixelScale = 1.0 / min(size.x, size.y);
+float pixelScale = 1.0 / min(outputSize.x, outputSize.y);
 float epsfactor = 2.0 * fovfactor * pixelScale * surfaceDetail;
 vec3  w = vec3(0, 0, 1);
 vec3  v = vec3(0, 1, 0);
