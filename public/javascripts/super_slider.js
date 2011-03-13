@@ -228,15 +228,15 @@ SuperSlider.prototype = {
 		x -= this.ox;
 		v = (x / this.track_width) * (this.options.max - this.options.min);
 		
-		if (event.altKey) {
-			// slow down the movements
-			v2 = ((d) / this.track_width) * (this.options.max - this.options.min);
-			console.log(d, v, v2)
-			v += v2;
-		}
+		// if (event.altKey) {
+		// 	// slow down the movements
+		// 	v2 = ((d) / this.track_width) * (this.options.max - this.options.min);
+		// 	console.log(d, v, v2)
+		// 	v += v2;
+		// }
 		
 		
-		if (event.shiftKey) {
+		if (!event.shiftKey) {
 			// Snap to step increments
 			v = Math.floor(v / this.options.step) * this.options.step;
 		}
