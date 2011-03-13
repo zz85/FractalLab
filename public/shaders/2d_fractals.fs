@@ -63,9 +63,10 @@ uniform sampler2D texture;          // {"label":"Mapping image URL", "default":"
 uniform float rotation;             // {"label":"Rotation",         "min":-180, "max":180,  "step":0.5,     "default":0,    "group":"Camera", "group_label":"Camera parameters"}
 uniform vec3  cameraPosition;       // {"label":["Camera x", "Camera y", "Camera z"],   "default":[-0.5, 0, 2.5], "min":0, "max": 200, "step":0.0000001, "control":"camera", "group":"Camera"}
 uniform vec2  size;                 // {"default":[400, 300]}
+uniform vec2  outputSize;           // {"default":[800, 600]}
 
 
-float aspectRatio = size.x / size.y;
+float aspectRatio = outputSize.x / outputSize.y;
 mat2  rotationMatrix;
 mat2  orbitRotation;
 mat2  orbitSpin;

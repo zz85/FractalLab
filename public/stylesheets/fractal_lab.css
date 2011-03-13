@@ -91,6 +91,10 @@ a:hover {
 	text-shadow: 0 1px 2px #000;
 	overflow: hidden;
 	}
+#header * {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	}
 h1.logo {
 	overflow: hidden;
 	width: 148px;
@@ -212,17 +216,28 @@ a.button.active:hover {
 
 .initialising #library_button {
 	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-/*	color: #333;*/
 	-webkit-animation-name: pulse;
 	-webkit-animation-duration: 0.5s;
 	-webkit-animation-iteration-count: infinite;
 	-webkit-animation-direction: alternate;
 	-webkit-animation-timing-function: ease-in-out;
 	}
-/*.initialising #menu a.button_tab.save {
-    background-color: #111;
-    color: #555;
-    }*/
+
+
+@-webkit-keyframes compilePulse {
+	0% { background-color: #6ACB5A; }
+	100% { background-color: #159C00; }
+	}
+
+#compile.enabled {
+	-webkit-animation-name: compilePulse;
+	-webkit-animation-duration: 0.5s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-direction: alternate;
+	-webkit-animation-timing-function: ease-in-out;
+	}
+
+
 
 
 
@@ -477,6 +492,9 @@ a.button.active:hover {
 	margin: 0 0 5px 0;
 	clear: left;
 	display: block;
+	-khtml-user-drag: true;
+	-webkit-user-drag: true;
+	-moz-user-drag: true;
 	}
 
 
@@ -494,6 +512,10 @@ a.button.active:hover {
 	right: 0;
 	top: 63px;
 	bottom: 39px;
+	}
+#shaderUI * {
+	-webkit-user-select: none;
+	-moz-user-select: none;
 	}
 #shaderUI h3 {
 	font-size: 12px;
