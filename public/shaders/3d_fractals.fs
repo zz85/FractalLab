@@ -136,7 +136,7 @@ vec3 SphereSponge(vec3 w)
     float d = -10000.0;
     float d1, r, md = 100000.0, cd = 0.0;
     
-    for (int i = 0; i < maxIterations; i++) {
+    for (int i = 0; i < int(maxIterations); i++) {
         vec3 zz = mod(w * k, sphereHoles) - vec3(0.5 * sphereHoles) + offset;
         r = length(zz);
         
@@ -179,7 +179,7 @@ vec3 MengerSponge(vec3 w)
     float md = 10000.0;
     vec3 cd = v;
     
-    for (int i = 0; i < maxIterations; i++) {
+    for (int i = 0; i < int(maxIterations); i++) {
         vec3 a = mod(3.0 * w * p, 3.0);
         p *= 3.0;
         
@@ -217,7 +217,7 @@ vec3 OctahedralIFS(vec3 w)
     float d, t;
     float md = 1000.0, cd = 0.0;
     
-    for (int i = 0; i < maxIterations; i++) {
+    for (int i = 0; i < int(maxIterations); i++) {
         w *= fractalRotation1;
         w = abs(w + shift) - shift;
         
@@ -277,7 +277,7 @@ vec3 DodecahedronIFS(vec3 w)
     float d, t;
     float md = 1000.0, cd = 0.0;
 
-    for (int i = 0; i < maxIterations; i++) {
+    for (int i = 0; i < int(maxIterations); i++) {
         w *= fractalRotation1;
         w = abs(w + shift) - shift;
         
@@ -341,7 +341,7 @@ vec3 Mandelbox(vec3 w)
     vec4 p = vec4(w.xyz, 1.0),
         p0 = vec4(w.xyz, 1.0);  // p.w is knighty's DEfactor
     
-    for (int i = 0; i < maxIterations; i++) {
+    for (int i = 0; i < int(maxIterations); i++) {
         // box fold:
         // if (p > 1.0) {
         //   p = 2.0 - p;
@@ -434,7 +434,7 @@ vec3 Mandelbulb(vec3 w)
     float r  = length(z);
     float md = 10000.0;
     
-    for (int i = 0; i < maxIterations; i++) {
+    for (int i = 0; i < int(maxIterations); i++) {
         powN(power, z, r, dr);
         
         z += c;
