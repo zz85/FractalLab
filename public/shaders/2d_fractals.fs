@@ -310,7 +310,7 @@ vec4 Mandelbrot(vec2 z) {
     float n = 0.0;
     vec2  c = juliaMode ? offset : z;
     
-    for (int i = 0; i < maxIterations; i++) {
+    for (int i = 0; i < int(maxIterations); i++) {
         n += 1.0;
         z = complexPower(z, power) + c;
         
@@ -353,7 +353,7 @@ vec4 OrbitTrap(vec2 z) {
     float n = 0.0;
     vec2  c = juliaMode ? offset : z;
     
-    for (int i = 0; i < maxIterations; i++) {
+    for (int i = 0; i < int(maxIterations); i++) {
         n += 1.0;
         
         z = complexPower(z, power) + c;
@@ -391,7 +391,7 @@ vec4 Ducks(vec2 z) {
     float d = 0.0;
     float v;
     
-    for (int i = 0; i < maxIterations; i++) {
+    for (int i = 0; i < int(maxIterations); i++) {
         n += 1.0;
         z = complexLog(vec2(z.x, abs(z.y))) + c;
         
