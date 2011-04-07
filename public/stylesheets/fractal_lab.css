@@ -517,6 +517,13 @@ a.button.active:hover {
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	}
+#shaderUI .image_source {
+	-webkit-user-select: text;
+	-moz-user-select: text;
+	}
+#shaderUI .image_source:focus {
+	color: #FFF;
+	}
 #shaderUI h3 {
 	font-size: 12px;
 	margin: 0 15px 2px 0;
