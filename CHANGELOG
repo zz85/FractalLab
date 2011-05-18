@@ -1,3 +1,12 @@
+RenderFlies Addon Change Log
+============================
+19 May 2011
+* Some code comments and committing to git
+
+13 May 2011
+* Quick hack to integrate timeline, keyframes, tweens, and rendering to server
+
+
 Fractal Lab Change Log
 ======================
 

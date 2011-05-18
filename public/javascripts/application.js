@@ -40,6 +40,18 @@ var application = function () {
 	$("#fullscreen").click(function () {
 		fractal_lab.fullscreen();
 	});
+    
+    // ZZ85 FUNCTIONS INJECTED HERE
+    $("#dump").click(function () {
+		fractal_lab.dump();
+		// Check console for JSON dump.
+		// Data is used for timeline creation
+	});
+    
+    $("#readyToRender").click(function () {
+    	fractal_lab.readyToRender();
+	});
+    // END ZZ85's FUNCTIONS
 	
 	
 	// Code editors

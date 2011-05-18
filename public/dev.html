@@ -11,6 +11,7 @@
 
 <script type="text/javascript" src="javascripts/jquery-1.5.min.js"></script>
 <script type="text/javascript" src="javascripts/underscore-min.js"></script>
+<script type="text/javascript" src="javascripts/Tween.js"></script>
 <script type="text/javascript" src="javascripts/request_anim_frame.js"></script>
 <script type="text/javascript" src="javascripts/super_slider.js"></script>
 <script type="text/javascript" src="javascripts/color.js"></script>
@@ -61,6 +62,8 @@ $(function () {
 			<a id="library_button" class="button">Fractal library</a>
 			<a id="save_fractal" class="button save">Save fractal</a>
 			<a id="fullscreen" class="button" title="Esc or f key to toggle fullscreen">Fullscreen</a>
+                    <a id="dump" class="button">dump</a>
+                    <a id="readyToRender" class="button">Ready for Render</a>
 		</div>
 	</div>
 	
@@ -160,8 +163,10 @@ $(function () {
 					<label for="mode">
 						<select id="mode">
 							<option value="preview">Preview</option>
-							<option value="auto" selected>Auto preview</option>
+							<option value="auto">Auto preview</option>
 							<option value="normal">Normal</option>
+                            <option value="render" selected>Render</option>
+                            <option value="renderpre">Render Preview</option>
 						</select>
 					</label>
 				</div>

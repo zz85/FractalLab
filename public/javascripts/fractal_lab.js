@@ -223,14 +223,26 @@ FractalLab.prototype = {
 	
 	
 	// Resize canvas to fit the container element
-	resize: function (event, resolution) {
+	resize: function (event, resolution,size) {
 		var c = $(this.gl_quad.canvas),
 			p = c.parent(),
 			w = p.width(), 
 			h = p.height(),
 			a = w / h;
-		
-		// console.log("resize", this.mode);
+            
+		if (resolution === 'render' && this.renderflies.job) {
+            var width = this.renderflies.job.width;
+            var height = this.renderflies.job.height;
+            p.hide();
+            p.width(width);
+            p.height(height);
+            w = width;
+            h = height;
+            a = w/h;
+                c.removeClass("fit");
+			this.preview_mode = false;
+		} else
+        
 		
 		if (!resolution || resolution === 'preview') {
 			// Preview res
@@ -264,6 +276,9 @@ FractalLab.prototype = {
 	
 	// Load from the saved shader object
 	load: function (shader) {
+        //console.log(shader);
+        //DEV//console.log(JSON.stringify({fragment:shader.fragment, vertex: shader.vertex}));
+    
 		$("#vertex_code").val(shader.vertex);
 		$("#fragment_code").val(shader.fragment);
 		
@@ -892,7 +907,9 @@ FractalLab.prototype = {
 			} else if (this.mode === 'normal' && this.preview_mode) {
 				this.resize(false, 'normal');
 			
-			} else {
+			} else if (this.mode ==='render' || this.mode ==='renderpre') {
+                this.resize(false, 'render');
+            } else {
 				this.gl_quad.draw();
 			}
 			
@@ -995,7 +1012,165 @@ FractalLab.prototype = {
 		document.removeEventListener("mouseup", this.mouseUpListener, false);
 		this.updateUI();
 	},
+    
+    // ZZ85's FUNCTIONS INJECTED HERE
+    
+    readyToRender: function() {
+        if (!this.renderflies) this.renderflies = {};
+        var fly = this ;
+        var jqxhr = $.getJSON("/jobs", function(a) {
+            fly.renderflies['job'] = a;
+            fly.initJob();
+        });
+    },
+    
+    initJob: function() {
+        var shader;
+    	
+		try {
+			shader = {
+				title: "Our shader",
+				vertex: this.renderflies.job.shaders.vertex,
+				fragment: this.renderflies.job.shaders.fragment,
+				params: this.renderflies.job.settings
+			};
+            
+            this.load(shader);
+        
+        var fly = this;
+        var jqxhr = $.getJSON("/ready", function(a) {
+            console.log("ready response",a);
+              window.setTimeout(function() {
+                    fly.renderFrame(a.id);
+                 },1000);
+           
+        });
+            
+		} catch (e) {
+			alert(e);
+			return;
+		}
+		
 	
+    },
+    
+	// get tween position from timeline
+    getTweenPosition: function(id, timeline) {
+        // Results
+       var timeline = this.renderflies.job.timeline;
+       
+       id = parseInt(id);
+       var tweener; // Type of tween: eg. TWEEN.Easing.Exponential.EaseIn; or TWEEN.Easing.Linear.EaseNone;
+       
+       for (var i=0; i<timeline.length; i++) {
+           if (timeline[i].f==id) {
+               return timeline[i].o;
+           } else if ( (timeline[i].f<id) 
+            && (timeline[i+1].f>id)) {
+               var o1 = timeline[i].o;
+               var o2 = timeline[i+1].o;
+               var diff = JSON.parse(JSON.stringify(o2));
+               var tween = timeline[i].t;
+               if (!tween) {
+                   tweener = TWEEN.Easing.Linear.EaseNone;
+               } else {
+                   tween = tween.split(".");
+                   tweener = TWEEN.Easing[tween[0]][tween[1]];
+               }
+               var t = (id - timeline[i].f)/ (timeline[i+1].f -timeline[i].f) ;
+               //console.log("t", t);
+               
+               for (var o in diff) {
+                   if ($.isArray(diff[o])) {
+                       for (var p in diff[o]) {
+                            diff[o][p] -= o1[o][p];
+                            diff[o][p] *= tweener(t);
+                            diff[o][p] += o1[o][p];
+                       }
+                   } else {
+                       diff[o] -= o1[o];
+                       diff[o] *= tweener(t);
+                       diff[o] += o1[o];
+                   }
+                   
+               }
+               
+               //console.log(diff, timeline[i].o,timeline[i+1].o);
+               return diff;
+               
+           }
+       }
+       
+       
+    },    
+    renderFrame: function(id) {
+        $("#log").append("<br/>Rendering frame " + id);
+        //console.log(JSON.stringify(this.gl_quad.parameters));
+       
+		// Trying to clear any auto rendering
+		window.clearTimeout(this.resizeTimeout);
+		window.clearTimeout(this.update_timeout);
+       
+       var here = this;
+        var newCam = this.getTweenPosition(id);
+        
+        $.extend(here.gl_quad.parameters,newCam);
+        
+        here.camera = new Camera(here.gl_quad.parameters[here.cameraUniform][0],
+        								 here.gl_quad.parameters[here.cameraUniform][1],
+										 here.gl_quad.parameters[here.cameraUniform][2],
+										 0,
+										 0);
+        
+        var d1 = new Date().getTime();
+        here.resize(false, "render");
+        var img = here.canvas().toDataURL("image/png;base64");
+        $("#log").append("<br/>Rendering time: " + (new Date().getTime()-d1));
+        
+        here.upload(img, id);
+        
+    },
+    
+    upload: function(img, id) {
+        var d2 = new Date().getTime();
+		var here = this;
+		$.post('/upload', {
+				id : id, //.toPrecision(4)
+				img : img
+			},
+			function(data) {
+				var d = data; 
+				if (d.status) {
+					$("#log").append("<br/>ID "+id +" " + d.file +" uploading time: "+ d.status + " at" + (new Date().getTime()-d2));
+				} else {
+                    $("#log").append("<br/>ID "+id +" " +" was uploading time:" + (new Date().getTime()-d2));
+				}
+                
+                if (d.id) {
+                    here.renderFrame(parseInt(d.id));
+                }
+                
+		});
+    },
+    
+    dump: function(){ 
+        this.dumpData();
+    },
+	
+    dumpData : function() {
+        //console.log('update camera called', JSON.stringify(this.camera));
+        //DEV//console.log('parameters', this.gl_quad.parameters);
+        var p = this.gl_quad.parameters;
+       
+        var params = {
+          cameraFocalLength: p.cameraFocalLength,
+          cameraPitch:  p.cameraPitch,
+          cameraPosition: p.cameraPosition,
+            cameraRoll: p.cameraRoll,
+            cameraYaw: p.cameraYaw
+        };
+        //DEV//console.log('parameters', JSON.stringify(params));
+    },
 	
 	updateCamera: function () {
 		this.camera.pitch(this.gl_quad.parameters.cameraPitch || 0);
