@@ -130,10 +130,12 @@ var project = {
 };
 
 /*
- 
- // This is the project settings for 2d fractal
- 
-var timeline = [
+ * This is the project settings for 2d fractal duck
+ */
+
+var shaders2d = {"fragment":"#ifdef GL_ES\nprecision highp float;\n#endif\n\n/**\n * Fractal Lab's 2D fractal shader\n * Last update: 10 March 2011\n *\n * Changelog:\n *      0.1     - Initial release\n *      0.2     - Added orbit trap option\n *      0.3     - Added 'Ducks' formula by Samuel Monnier\n *\n * Copyright 2011, Tom Beddard\n * http://www.subblue.com\n *\n * For more generative graphics experiments see:\n * http://www.subblue.com\n *\n * Licensed under the GPL Version 3 license.\n * http://www.gnu.org/licenses/\n *\n*/\n\n#define dE Mandelbrot             // {\"label\":\"Fractal type\", \"control\":\"select\", \"options\":[\"Mandelbrot\", \"OrbitTrap\", \"Ducks\"]}\n\n#define maxIterations 50            // {\"label\":\"Iterations\", \"min\":1, \"max\":400, \"step\":1, \"group_label\":\"2D parameters\"}\n#define antialiasing 0.5            // {\"label\":\"Anti-aliasing\", \"control\":\"bool\", \"default\":false, \"group_label\":\"Render quality\"}\n\nuniform float scale;                // {\"label\":\"Scale\",        \"min\":-10,  \"max\":10,   \"step\":0.1,     \"default\":2,    \"group\":\"Fractal\", \"group_label\":\"Fractal parameters\"}\nuniform float power;                // {\"label\":\"Power\",        \"min\":-20,  \"max\":20,   \"step\":0.001,     \"default\":2,    \"group\":\"Fractal\"}\nuniform float bailout;              // {\"label\":\"Bailout\", \"min\":0.1, \"max\":50, \"step\":0.01, \"default\":4, \"group\":\"Fractal\"}\nuniform int   minIterations;        // {\"label\":\"Min. iterations\", \"min\":1, \"max\":400, \"step\":1, \"group\":\"Fractal\"}\n\nuniform bool  juliaMode;            // {\"label\":\"Enable\", \"default\":false,    \"group\":\"Fractal\", \"group_label\":\"Julia mode\"}\nuniform vec2  offset;               // {\"label\":[\"Offset x\",\"Offset y\"],  \"min\":-2,   \"max\":2,    \"step\":0.001,    \"default\":[0.36,0.06],  \"group\":\"Fractal\"}\n\nuniform int   colorMode;            // {\"label\":\"Colour mode\",  \"min\":0,  \"max\":6,   \"step\":1,     \"default\":0,    \"group\":\"Colour\"}\nuniform int   bailoutStyle;         // {\"label\":\"Colour style\", \"min\":0,  \"max\":4,   \"step\":1,     \"default\":0,    \"group\":\"Colour\"}\nuniform float colorScale;           // {\"label\":\"Colour scale\",  \"min\":0,  \"max\":10,   \"step\":0.01,     \"default\":1,    \"group\":\"Colour\"}\nuniform float colorCycle;           // {\"label\":\"Colour cycle\", \"min\":0,  \"max\":10,   \"step\":0.01,     \"default\":1,    \"group\":\"Colour\"}\nuniform float colorCycleOffset;     // {\"label\":\"Colour cycle offset\", \"min\":-10,  \"max\":10,   \"step\":0.01,     \"default\":0,    \"group\":\"Colour\"}\nuniform bool  colorCycleMirror;     // {\"label\":\"Colour mirror\", \"default\":true,    \"group\":\"Colour\"}\nuniform bool  hsv;                  // {\"label\":\"Rainbow\", \"default\":false,    \"group\":\"Colour\"}\nuniform float iterationColorBlend;  // {\"label\":\"Iteration blend\", \"min\":0,  \"max\":10,   \"step\":0.01,     \"default\":0,    \"group\":\"Colour\"}\n\nuniform int   colorIterations;      // {\"label\":\"Colour iterations\", \"default\": 4, \"min\":0, \"max\": 30, \"step\":1, \"group\":\"Colour\", \"group_label\":\"Base colour\"}\nuniform vec3  color1;               // {\"label\":\"Colour 1\",  \"default\":[1.0, 1.0, 1.0], \"group\":\"Colour\", \"control\":\"color\"}\nuniform vec3  color2;               // {\"label\":\"Colour 2\",  \"default\":[0, 0.53, 0.8], \"group\":\"Colour\", \"control\":\"color\"}\nuniform vec3  color3;               // {\"label\":\"Inside/background colour\",  \"default\":[0.0, 0.0, 0.0], \"group\":\"Colour\", \"control\":\"color\"}\nuniform bool  transparent;          // {\"label\":\"Transparent background\", \"default\":false, \"group\":\"Colour\"}\nuniform float gamma;                // {\"label\":\"Gamma correction\", \"default\":1, \"min\":0.1, \"max\":2, \"step\":0.01, \"group\":\"Colour\"}\n\nuniform bool  orbitTrap;            // {\"label\":\"Orbit trap\", \"default\":false, \"group\":\"Image\", \"group_label\":\"Map images into fractal space\"}\nuniform vec2  orbitTrapOffset;      // {\"label\":[\"Orbit offset x\", \"Orbit trap y\"], \"min\":-3, \"max\":3, \"default\":[0, 0], \"step\":0.001, \"group\":\"Image\"}\nuniform float orbitTrapScale;       // {\"label\":\"Image scale\", \"min\": 0.1, \"max\": 10, \"step\": 0.001, \"default\":1, \"group\":\"Image\"}\nuniform float orbitTrapEdgeDetail;  // {\"label\":\"Edge detail\", \"min\": 0, \"max\": 1, \"step\": 0.001, \"default\":0.5, \"group\":\"Image\"}\nuniform float orbitTrapRotation;    // {\"label\":\"Rotation\", \"min\": -360, \"max\": 360, \"step\": 0.1, \"default\":0, \"group\":\"Image\"}\nuniform float orbitTrapSpin;        // {\"label\":\"Spin\", \"min\": -360, \"max\": 360, \"step\": 0.1, \"default\":0, \"group\":\"Image\"}\nuniform sampler2D texture;          // {\"label\":\"Mapping image URL\", \"default\":\"/images/flower.png\", \"group\":\"Image\"}\n\n\nuniform float rotation;             // {\"label\":\"Rotation\",         \"min\":-180, \"max\":180,  \"step\":0.5,     \"default\":0,    \"group\":\"Camera\", \"group_label\":\"Camera parameters\"}\nuniform vec3  cameraPosition;       // {\"label\":[\"Camera x\", \"Camera y\", \"Camera z\"],   \"default\":[-0.5, 0, 2.5], \"min\":0, \"max\": 200, \"step\":0.0000001, \"control\":\"camera\", \"group\":\"Camera\"}\nuniform vec2  size;                 // {\"default\":[400, 300]}\nuniform vec2  outputSize;           // {\"default\":[800, 600]}\n\n\nfloat aspectRatio = outputSize.x / outputSize.y;\nmat2  rotationMatrix;\nmat2  orbitRotation;\nmat2  orbitSpin;\n\n\n#define BAILOUT 4.0\n#define LOG2 float(log(2.0))\n\n// Complex math operations\n#define complexMult(a,b) vec2(a.x*b.x - a.y*b.y, a.x*b.y + a.y*b.x)\n#define complexMag(z) float(pow(length(z), 2.0))\n#define complexReciprocal(z) vec2(z.x / complexMag(z), -z.y / complexMag(z))\n#define complexDivision(a,b) complexMult(a, complexReciprocal(b))\n#define complexArg(z) float(atan(z.y, z.x))\n#define complexLog(z) vec2(log(length(z)), complexArg(z))\n#define complexExp(z) vec2(exp(z.x) * cos(z.y), exp(z.x) * sin(z.y))\n#define sinh(x) float((exp(x) - exp(-x)) / 2.0)\n#define cosh(x) float((exp(x) + exp(-x)) / 2.0)\n#define complexSin(z) vec2(sin(z.x) * cosh(z.y), cos(z.x) * sinh(z.y))\n#define complexCos(z) vec2(cos(z.x) * cosh(z.y), -sin(z.x) * sinh(z.y))\n#define complexTan(z) vec2(sin(2.0 * z.x)/(cos(2.0 * z.x) + cosh(2.0 * z.y)), sinh(2.0 * z.y)/(cos(2.0 * z.x) + cosh(2.0 * z.y)))\n#define complexSinh(z) vec2(sinh(z.x) * cos(z.y), cosh(z.x) * sin(z.y))\n#define complexCosh(z) vec2(cosh(z.x) * cos(z.y), sinh(z.x) * sin(z.y))\n#define complexTanh(z) vec2(sinh(2.0 * z.x)/(cosh(2.0 * z.a) + cos(2.0 * z.y)), sin(2.0 * z.y)/(cosh(2.0 * z.x) + cos(2.0 * z.y)))\n#define polar(r,a) vec2(cos(a) * r, sin(a) * r)\n#define complexPower(z,p) vec2(polar(pow(length(z), float(p)), float(p) * complexArg(z)))\n\n// x^y = exp(y * log(x))\n#define complexPower2(z, p) vec2(complexExp(complexMult(p, complexLog(z))))\n\n\n// RGB to HSV\n// http://www.easyrgb.com/index.php?X=MATH&H=20#text20\nvec3 rgb2hsv(vec3 color)\n{\n    float rgb_min = min(color.r, min(color.g, color.b));\n    float rgb_max = max(color.r, max(color.g, color.b));\n    float rgb_delta = rgb_max - rgb_min;\n    \n    float v = rgb_max;\n    float h, s;\n    \n    if (rgb_delta == 0.0) {\n        // Grey\n        h = 0.0;\n        s = 0.0;\n    } else {\n        // Colour\n        s = rgb_delta / rgb_max;\n        float r_delta = (((rgb_max - color.r) / 6.0) + (rgb_delta / 2.0)) / rgb_delta;\n        float g_delta = (((rgb_max - color.g) / 6.0) + (rgb_delta / 2.0)) / rgb_delta;\n        float b_delta = (((rgb_max - color.b) / 6.0) + (rgb_delta / 2.0)) / rgb_delta;\n        \n        if (color.r == rgb_max) {\n            h = b_delta - g_delta;\n        } else if (color.g == rgb_max) {\n            h = 1.0 / 3.0 + r_delta - b_delta;\n        } else if (color.b == rgb_max) {\n            h = 2.0 / 3.0 + g_delta - r_delta;\n        }\n        \n        if (h < 0.0) h += 1.0;\n        if (h > 1.0) h -= 1.0;\n    }\n    \n    return vec3(h, s, v);\n}\n\n\nvec3 hsv2rgb(vec3 hsv)\n{\n    float h, s, v, r, g, b, j, p, q, t;\n    int i;\n    vec3 color;\n    \n    h = hsv.x;\n    s = hsv.y;\n    v = hsv.z;\n\t\n    if (h == 1.0) {\n\t\th = 0.0;\n\t}\n    \n    if (v == 0.0) {\n        // No brightness so return black\n        color = vec3(0.0);\n        \n    } else if (s == 0.0) {\n        // No saturation so return grey\n        color = vec3(v);\n        \n    } else {\n\t\t// RGB color\n        h *= 6.0;\n\t\ti = int(floor(h));\n\t\tj = h - float(i);\n\t\tp = v * (1.0 - s);\n\t\tq = v * (1.0 - (s * j));\n\t\tt = v * (1.0 - (s * (1.0 - j)));\n\t\t\n\t\tif (i == 0) {\n\t\t\tr = v;\n\t\t\tg = t;\n\t\t\tb = p;\n\t\t} else if (i == 1) {\n\t\t\tr = q;\n\t\t\tg = v;\n\t\t\tb = p;\n\t\t} else if (i == 2) {\n\t\t\tr = p;\n\t\t\tg = v;\n\t\t\tb = t;\n\t\t} else if (i == 3) {\n\t\t\tr = p;\n\t\t\tg = q;\n\t\t\tb = v;\n\t\t} else if (i == 4) {\n\t\t\tr = t;\n\t\t\tg = p;\n\t\t\tb = v;\n\t\t} else if (i == 5) {\n\t\t\tr = v;\n\t\t\tg = p;\n\t\t\tb = q;\n\t\t}\n\t\tcolor = vec3(r, g, b);\n\t}\n    \n    return color;\n}\n\n\n\n\n// ============================================================================================ //\n\n\n#ifdef dEMandelbrot\n\nfloat _bailout = exp(bailout);\nfloat log2Bailout = log(2.0 * log(_bailout));\nfloat logPower = log(abs(power));\n\nbool bailoutLimit(vec2 z) {\n    bool bailing = false;\n    \n    if (bailoutStyle == 3 && (pow(z.x, 2.0) - pow(z.y, 2.0)) >= _bailout) {\n        bailing = true;\n        \n    } else if (bailoutStyle == 4 && (z.y * z.y - z.y * z.x) >= bailout) {\n        bailing = true;\n        \n    } else if (bailoutStyle == 2 && (pow(z.y, 2.0) - pow(z.x, 2.0)) >= _bailout) {\n        bailing = true;\n        \n    } else if (bailoutStyle == 1 && (abs(z.x) > bailout || abs(z.y) > _bailout)) {\n        bailing = true;\n        \n    } else if (dot(z, z) >= _bailout) {\n        bailing = true;\n    }\n    \n    return bailing;\n}\n\n\nvec4 colorMapping(float n, vec2 z) {\n    vec3 color = color3,\n        c1 = color1,\n        c2 = color2;\n    \n    if (hsv) {\n        c1 = rgb2hsv(c1);\n        c2 = rgb2hsv(c2);\n    }\n    \n    if (colorMode == 3) {\n        color = atan(z.y, z.x) > 0.0 ? c1 : c2;\n        \n    } else if (colorMode == 4) {\n        color = mod(n, 2.0) == 0.0 ? c1 : c2;\n        \n    } else if (colorMode == 5) {\n        color = (abs(z.x) < bailout / 2.0 || abs(z.y) < bailout / 2.0) ? c1 : c2;\n        \n    } else if (colorMode == 6) {\n        float v = 0.5 * sin(floor(colorScale) * complexArg(z)) + 0.5;\n        color = mix(c1, c2, v);\n         \n    } else {\n        float v = abs(1.0 - n / float(maxIterations));\n        float v0 = v;\n        float vp, v1;\n        \n        if (colorMode != 2) {\n            // Smooth colouring\n            // From: http://en.wikipedia.org/wiki/Mandelbrot_set#Continuous_.28smooth.29_coloring\n            vp = abs((log2Bailout - log(log(abs(length(z))))) / logPower);\n            v1 = abs(1.0 - (n + 1.0) / float(maxIterations));\n            \n            if (colorMode == 1) {\n                if (n == 0.0) {\n                    v = v - (v - v1) * vp;\n                } else {\n                    v = v1 - (v1 - v) * vp;\n                }\n            } else {\n                v = v + (v1 - v) * vp;\n            }\n        }\n        \n        if (colorMode == 2 && n == 0.0) v = 1.0;\n        \n        v = pow(v, colorScale);\n        v *= colorCycle;\n        v += colorCycleOffset;\n        \n        if (colorCycleMirror) {\n            bool even = mod(v, 2.0) < 1.0 ? true : false;\n            if (even) {\n                v = 1.0 - mod(v, 1.0);\n            } else {\n                v = mod(v, 1.0);\n            }\n        } else {\n            v = 1.0 - mod(v, 1.0);\n        }\n        \n        if (hsv) {\n            color = hsv2rgb(mix(c1, c2, clamp(v, 0.0, 1.0)));\n        } else {\n           color = mix(c1, c2, clamp(v, 0.0, 1.0));\n        }\n    }\n    \n    return vec4(color, 1.0);\n}\n\n\nvec4 Mandelbrot(vec2 z) {\n    vec4  color = vec4(color3, 1.0);\n    float n = 0.0;\n    vec2  c = juliaMode ? offset : z;\n    \n    for (int i = 0; i < int(maxIterations); i++) {\n        n += 1.0;\n        z = complexPower(z, power) + c;\n        \n        if (n >= float(minIterations) && bailoutLimit(z)) {\n            color = colorMapping(n, z);\n            break;\n        }\n    }\n    \n    if (iterationColorBlend > 0.0) {\n        float blend = clamp(1.0 - (n / float(maxIterations)) * iterationColorBlend, 0.0, 1.0);\n        color.rgb = mix(color3, color.rgb, blend);\n    }\n    \n    return color;\n}\n\n#endif\n\n\n// ============================================================================================ //\n\n\n#ifdef dEOrbitTrap\n\nvec4 orbitMapping(vec4 c, vec2 w)\n{\n    vec4 color = vec4(0);\n    vec2 sp = 0.5 + (w / orbitTrapScale * orbitRotation - orbitTrapOffset) * orbitSpin;\n    \n\tvec4 s = texture2D(texture, sp);\n\tif (s.a > 0.0) c = mix(c, s, s.a);\n    \n    return c;\n}\n\n\nvec4 OrbitTrap(vec2 z) {\n    vec4  color = vec4(color3, 0.0);\n    float n = 0.0;\n    vec2  c = juliaMode ? offset : z;\n    \n    for (int i = 0; i < int(maxIterations); i++) {\n        n += 1.0;\n        \n        z = complexPower(z, power) + c;\n        \n        if (n >= float(minIterations)) {\n            color = orbitMapping(color, z);\n            if (color.a >= orbitTrapEdgeDetail) break;\n        }\n    }\n    \n    if (iterationColorBlend > 0.0) {\n        float blend = clamp(1.0 - (n / float(maxIterations)) * iterationColorBlend, 0.0, 1.0);\n        color.rgb = mix(color3, color.rgb, blend);\n    }\n    \n    if (!transparent) color.a = 1.0;\n    \n    return color;\n}\n\n#endif\n\n\n// ============================================================================================ //\n\n\n#ifdef dEDucks\n// Ducks and butterflies\n// http://www.algorithmic-worlds.net/blog/blog.php?Post=20110227\n\nvec4 Ducks(vec2 z) {\n    vec4  color = vec4(color3, 1.0);\n    float n = 0.0;\n    vec2  c = juliaMode ? offset : z;\n    float d = 0.0;\n    float v;\n    \n    for (int i = 0; i < int(maxIterations); i++) {\n        n += 1.0;\n        z = complexLog(vec2(z.x, abs(z.y))) + c;\n        \n        if (n >= float(minIterations)) {\n            d += dot(z, z);\n        }\n    }\n    \n    v = sqrt(d / n);\n    v = pow(v, colorScale);\n    v *= colorCycle;\n    v += colorCycleOffset;\n    \n    if (colorCycleMirror) {\n        bool even = mod(v, 2.0) < 1.0 ? true : false;\n        if (even) {\n            v = 1.0 - mod(v, 1.0);\n        } else {\n            v = mod(v, 1.0);\n        }\n    } else {\n        v = 1.0 - mod(v, 1.0);\n    }\n    \n    if (hsv) {\n        color.rgb = hsv2rgb(mix(rgb2hsv(color1.rgb), rgb2hsv(color2.rgb), clamp(v, 0.0, 1.0)));\n    } else {\n       color.rgb = mix(color1.rgb, color2.rgb, clamp(v, 0.0, 1.0));\n    }\n    \n    return color;\n}\n\n#endif\n\n\n// ============================================================================================ //\n\n\nvec4 render(vec2 pixel) {\n    vec2  z = ((pixel - (size * 0.5)) / size) * vec2(aspectRatio, 1.0) * cameraPosition.z + cameraPosition.xy;\n    z *= rotationMatrix;\n    \n    return dE(z);\n}\n\n\n// The main loop\nvoid main()\n{\n    vec4 color = vec4(0.0);\n    float n = 0.0;\n    \n    float rc = cos(radians(rotation));\n    float rs = sin(radians(rotation));\n    rotationMatrix = mat2(rc, rs, -rs, rc);\n    \n#ifdef dEOrbitTrap\n    \n    float otrc = cos(radians(orbitTrapRotation));\n    float otrs = sin(radians(orbitTrapRotation));\n    orbitRotation = mat2(otrc, otrs, -otrs, otrc);\n\n    float otsc = cos(radians(orbitTrapSpin));\n    float otss = sin(radians(orbitTrapSpin));\n    orbitSpin = mat2(otsc, otss, -otss, otsc);\n    \n#endif\n    \n    \n#ifdef antialiasing\n    for (float x = 0.0; x < 1.0; x += float(antialiasing)) {\n        for (float y = 0.0; y < 1.0; y += float(antialiasing)) {\n            color += render(gl_FragCoord.xy + vec2(x, y));\n            n += 1.0;\n        }\n    }\n    color /= n;\n#else\n    color = render(gl_FragCoord.xy);\n#endif\n    \n    if (color.a < 0.00392) discard; // Less than 1/255\n    \n    gl_FragColor = vec4(pow(color.rgb, vec3(1.0 / gamma)), 1.0);\n    \n}\n","vertex":"attribute vec3 vertexPosition;\n\nvoid main() \n{\n    gl_Position = vec4(vertexPosition, 1.0);\n}"};
+
+var timeline01 = [
     {
         f: 1,
         t: 'Exponential.EaseIn',
@@ -146,19 +148,17 @@ var timeline = [
     }
 ];
 
-var project = {
+var project01 = {
     fps: 25,
     length: 5*25,
     id: 'f1',
     key: 'a4b43',
     settings: {"scale":2, "power":2, "bailout":4, "minIterations":1, "juliaMode":true, "offset":[-0.521,-1.438], "colorMode":0, "bailoutStyle":0, "colorScale":1.79, "colorCycle":1, "colorCycleOffset":0.24, "colorCycleMirror":true, "hsv":false, "iterationColorBlend":0, "colorIterations":4, "color1":[1,1,1], "color2":[0,0.53,0.8], "color3":[0,0,0], "transparent":false, "gamma":1, "orbitTrap":false, "orbitTrapOffset":[0,0], "orbitTrapScale":1, "orbitTrapEdgeDetail":0.5, "orbitTrapRotation":0, "orbitTrapSpin":0, "texture":"/images/flower.png", "rotation":0, "cameraPosition":[-0.570263,-0.320191,10.264668], "size":[873,598], "dE":"Ducks", "maxIterations":50, "antialiasing":false, "stepSpeed":0.5},
-    shaders: shaders,
-    timeline: timeline,
+    shaders: shaders2d,
+    timeline: timeline01,
     height: 480,
     width: 720
 };
-
-*/
 
 
 /********
@@ -228,35 +228,35 @@ function encode() {
 	var stderr = "";
 	
 	ffmpeg.stdout.on('data', function (data) {
-					 stdout+= data;
-					 //console.log('stdout: ' + data);
-					 });
+		stdout+= data;
+		//console.log('stdout: ' + data);
+	});
 	
 	ffmpeg.stderr.on('data', function (data) {
-					 stderr += data;
-					 //console.log('stderr: ' + data);
-					 });
+		stderr += data;
+		//console.log('stderr: ' + data);
+	});
 	
 	ffmpeg.on('exit', function (code) {
-			  //console.log('child process exited with code ' + code);
-			  // Create a return json object
-			  var ret = {
-			  status: "ok", 
-			  filename: filename, 
-			  code:code, stdout:stdout, 
-			  stderr:stderr, 
-			  time: (new Date().getTime()-startTime.getTime())
-			  };
-			  
-			  console.log("encoding end", ret);
-			  });
+	//console.log('child process exited with code ' + code);
+	// Create a return json object
+	var ret = {
+		status: "ok", 
+		filename: filename, 
+		code:code, stdout:stdout, 
+		stderr:stderr, 
+		time: (new Date().getTime()-startTime.getTime())
+	};
+
+	console.log("Video Encoding eneded", ret);
+	});
 }
 
 
 
 /********
  * 
- *  Now for Express Configurations
+ * Express Server Configurations
  * 
  ***************/
 
@@ -371,5 +371,5 @@ app.post('/upload', function(req, res, next){
 }); // end post
 
 
-// Start the server listening on port 80
+// Start the server listening on port
 app.listen(port);

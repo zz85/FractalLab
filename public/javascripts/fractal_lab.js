@@ -1135,7 +1135,7 @@ FractalLab.prototype = {
         var d2 = new Date().getTime();
 		var here = this;
 		$.post('/upload', {
-				id : id, //.toPrecision(4)
+				id : id,
 				img : img
 			},
 			function(data) {
@@ -1158,19 +1158,23 @@ FractalLab.prototype = {
     },
 	
     dumpData : function() {
-        //console.log('update camera called', JSON.stringify(this.camera));
-        //DEV//console.log('parameters', this.gl_quad.parameters);
+        //DEV
+		//console.log('update camera called', JSON.stringify(this.camera));
+        //console.log('parameters', this.gl_quad.parameters);
         var p = this.gl_quad.parameters;
        
         var params = {
-          cameraFocalLength: p.cameraFocalLength,
-          cameraPitch:  p.cameraPitch,
-          cameraPosition: p.cameraPosition,
+			cameraFocalLength: p.cameraFocalLength,
+			cameraPitch:  p.cameraPitch,
+			cameraPosition: p.cameraPosition,
             cameraRoll: p.cameraRoll,
             cameraYaw: p.cameraYaw
         };
-        //DEV//console.log('parameters', JSON.stringify(params));
+        //DEV
+		console.log('parameters', JSON.stringify(params));
     },
+	
+	// End of Zz85's functions
 	
 	updateCamera: function () {
 		this.camera.pitch(this.gl_quad.parameters.cameraPitch || 0);

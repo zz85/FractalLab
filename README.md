@@ -8,14 +8,14 @@ Web browsers are used to render still images and processing is done using Node.j
 Requirements
 ============
 
-* Node.js (Mac Brew users can run brew install node.js)
+* Node.js (Mac users may install with brew install node.js)
 * Express and Formidable modules (npm install express formidable)
-* A WebGl enabled browser (eg. Firefox4, Google Chrome)
+* A web browser running WebGL (eg. Firefox 4, Google Chrome with a decent graphics card)
 * FFMpeg
 * Create a tmp directory for still images upload and a render directory
 
-Usage
-=====
+Rendering a sequence
+====================
 Run the server using
 node server.js
 
@@ -26,11 +26,27 @@ Click "Ready for Render"
 
 Wait and see.
 
+Creating a new sequence
+=======================
+Edit the project files in server.js
+
+Keyframes are in frames rather than in absolute time.
+
+To generate keyframes, one can use Fractal Lab to first explore the fractal,
+then use the JSON dump to copy the camera properties to the timeline.
+
+
 Recommended
 ===========
 Use firefox 4 without image preview for best performances
 
+
+RenderFlies About
+=================
+Hack added by
 Joshua Koo (zz85nus@gmail.com) http://www.lab4games.net/zz85/blog/
+
+
 
 
 Info about the original Fractal Lab
