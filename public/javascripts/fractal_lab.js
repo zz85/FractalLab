@@ -1043,6 +1043,8 @@ FractalLab.prototype = {
               window.setTimeout(function() {
                     fly.renderFrame(a.id);
                  },1000);
+				// I used a setTimeout seemingly as a workaround to prevent a default rendering after compiling
+				// Not sure if there's a better way to do this.
            
         });
             
