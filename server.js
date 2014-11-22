@@ -12,7 +12,8 @@
  *
  */
 
-var app = require('express').createServer();
+var express = require('express'), http = require('http');
+var app = express();
 
 var formidable = require('formidable');
 
@@ -260,15 +261,13 @@ function encode() {
  * 
  ***************/
 
-app.configure(function(){
-	// Sets the root directory
-	html_dir =  __dirname + '/public/';
-    
-    stills_dir = __dirname + "/out/";
-    renders_dir = __dirname + "/out/renders/";
-    
-    console.log(html_dir, stills_dir, renders_dir);
- });
+// Sets the root directory
+html_dir =  __dirname + '/public/';
+
+stills_dir = __dirname + "/out/";
+renders_dir = __dirname + "/out/renders/";
+
+console.log(html_dir, stills_dir, renders_dir);
 
 // We send the developer's web application
 app.get('/', function(req, res){
@@ -370,6 +369,7 @@ app.post('/upload', function(req, res, next){
     }); // end form parse
 }); // end post
 
+console.log("Server running, open a browser window to http://localhost:9000");
 
 // Start the server listening on port
 app.listen(port);
